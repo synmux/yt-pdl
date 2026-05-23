@@ -18,7 +18,7 @@ from .errors import NoStateError
 from .events import RunResult
 from .flatten import flatten_playlist
 from .plain import run_plain
-from .reconcile import failed_urls, reconcile
+from .reconcile import Reconciliation, failed_urls, reconcile
 from .report import render_dry_run_plan, render_report_text
 from .ytdlp_options import build_cookie_export_opts, build_download_opts
 
@@ -59,8 +59,16 @@ def run_download(config: RunConfig, *, warn: Warn, ydl_factory: YdlFactory | Non
     if config.plain:
         run_result = run_plain(entries, config, cookie_mode, ydl_factory=factory)
     else:
-        # TODO(Task 13): drive the Textual UI when attached to a TTY.
-        raise NotImplementedError("the Textual UI is added in a later step")
+        # Imported lazily so --dry-run/flush/--help never pay Textual's import cost.
+        from .tui.app import run_textual
+
+        run_result = run_textual(
+            entries,
+            config,
+            cookie_mode,
+            ydl_factory=factory,
+            summarise=lambda result: _reconcile_run(config, entries, result)[1],
+        )
 
     return _finalise_run(config, entries, run_result)
 
@@ -82,11 +90,10 @@ def _print_dry_run(config: RunConfig, entries, cookie_mode) -> None:
     )
 
 
-def _finalise_run(config: RunConfig, entries: list[Entry], run_result: RunResult) -> int:
-    """Reconcile after a run, write report.txt + failed.txt, and print the report.
-
-    Shared by the plain and Textual paths so the auto flush is identical for both.
-    """
+def _reconcile_run(
+    config: RunConfig, entries: list[Entry], run_result: RunResult
+) -> tuple[Reconciliation, str]:
+    """Reconcile a finished run against the archive and render the report text."""
     archive_ids = read_archive_ids(config.paths.archive_file)
     requested_ids = {entry.id for entry in entries}
     reconciliation = reconcile(
@@ -102,6 +109,15 @@ def _finalise_run(config: RunConfig, entries: list[Entry], run_result: RunResult
         cancelled=run_result.cancelled,
         failure_reasons=run_result.failure_reasons,
     )
+    return reconciliation, report_text
+
+
+def _finalise_run(config: RunConfig, entries: list[Entry], run_result: RunResult) -> int:
+    """Auto flush: reconcile, write report.txt + failed.txt, and print the report.
+
+    Shared by the plain and Textual paths so the end-of-run report is identical.
+    """
+    reconciliation, report_text = _reconcile_run(config, entries, run_result)
     config.paths.report_file.write_text(report_text + "\n", encoding="utf-8")
     _write_failed(config.paths.failed_file, failed_urls(reconciliation, entries))
     print(report_text)

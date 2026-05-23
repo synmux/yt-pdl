@@ -11,6 +11,7 @@ one factory serves both the flatten (``extract_info``) and the download
 """
 
 import threading
+import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -31,6 +32,7 @@ class FakeYoutubeDL:
         rate_limited_ids: frozenset[str],
         write_cookies: bool,
         archive_lock: threading.Lock,
+        delay: float,
     ) -> None:
         self._opts = opts
         self._info = info
@@ -38,6 +40,7 @@ class FakeYoutubeDL:
         self._rate_limited_ids = rate_limited_ids
         self._write_cookies = write_cookies
         self._archive_lock = archive_lock
+        self._delay = delay
 
     def __enter__(self) -> "FakeYoutubeDL":
         return self
@@ -56,6 +59,8 @@ class FakeYoutubeDL:
     def download(self, urls: list[str]) -> int:
         return_code = 0
         for url in urls:
+            if self._delay:
+                time.sleep(self._delay)
             video_id = url.rsplit("/", 1)[-1]
             if video_id in self._fail_ids:
                 return_code = 1
@@ -122,10 +127,12 @@ def fake_ydl_factory(
     fail_ids: frozenset[str] = frozenset(),
     rate_limited_ids: frozenset[str] = frozenset(),
     write_cookies: bool = True,
+    delay: float = 0.0,
 ) -> Callable[[dict[str, Any]], FakeYoutubeDL]:
     """Build a factory producing scripted ``FakeYoutubeDL`` instances.
 
     All instances share one lock so concurrent archive appends stay line-clean.
+    ``delay`` adds a per-video sleep so cancellation can be exercised mid-run.
     """
     archive_lock = threading.Lock()
 
@@ -137,6 +144,7 @@ def fake_ydl_factory(
             rate_limited_ids=rate_limited_ids,
             write_cookies=write_cookies,
             archive_lock=archive_lock,
+            delay=delay,
         )
 
     return factory
