@@ -130,3 +130,45 @@ class RecordingObserver:
 
     def __call__(self, event: Event) -> None:
         self.events.append(event)
+
+
+class FakeFlatExtractor:
+    """A stand-in for read-only flat extraction.
+
+    Mimics yt-dlp writing the cookie file as a side-effect of the call when
+    ``write_cookies`` is set, so cookie-mode resolution can be exercised.
+    """
+
+    def __init__(
+        self,
+        opts: dict[str, Any],
+        info: dict[str, Any] | None,
+        *,
+        write_cookies: bool,
+    ) -> None:
+        self._opts = opts
+        self._info = info
+        self._write_cookies = write_cookies
+
+    def __enter__(self) -> "FakeFlatExtractor":
+        return self
+
+    def __exit__(self, *exc_info: object) -> bool:
+        return False
+
+    def extract_info(self, url: str, *, download: bool) -> dict[str, Any] | None:
+        cookie_file = self._opts.get("cookiefile")
+        if self._write_cookies and cookie_file:
+            path = Path(cookie_file)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("# Netscape HTTP Cookie File\n", encoding="utf-8")
+        return self._info
+
+
+def fake_flat_factory(
+    info: dict[str, Any] | None, *, write_cookies: bool = True
+) -> Callable[[dict[str, Any]], FakeFlatExtractor]:
+    def make(opts: dict[str, Any]) -> FakeFlatExtractor:
+        return FakeFlatExtractor(opts, info, write_cookies=write_cookies)
+
+    return make
