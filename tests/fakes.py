@@ -1,9 +1,13 @@
 """Test doubles for yt-dlp — no network, no terminal.
 
-``FakeYoutubeDL`` mimics the parts of ``yt_dlp.YoutubeDL`` the engine relies on:
-it derives the video id from the URL's last path segment, drives the progress
-hook(s) and logger as yt-dlp would, records successful ids to the download
-archive, and returns 0 (all ok) or 1 (a failure occurred).
+``FakeYoutubeDL`` mimics the parts of ``yt_dlp.YoutubeDL`` the tool relies on, so
+one factory serves both the flatten (``extract_info``) and the download
+(``download``) phases, exactly as the real class does:
+
+* ``extract_info`` returns the configured playlist info and, like yt-dlp, writes
+  the cookie file as a side-effect when ``write_cookies`` is set;
+* ``download`` derives the video id from the URL, drives the progress hook(s) and
+  logger, records successful ids to the archive, and returns 0/1.
 """
 
 import threading
@@ -16,19 +20,23 @@ from ytdlp_parallel.events import Event
 
 
 class FakeYoutubeDL:
-    """A scripted stand-in for ``yt_dlp.YoutubeDL``."""
+    """A scripted stand-in for ``yt_dlp.YoutubeDL`` (flatten + download)."""
 
     def __init__(
         self,
         opts: dict[str, Any],
         *,
+        info: dict[str, Any] | None,
         fail_ids: frozenset[str],
         rate_limited_ids: frozenset[str],
+        write_cookies: bool,
         archive_lock: threading.Lock,
     ) -> None:
         self._opts = opts
+        self._info = info
         self._fail_ids = fail_ids
         self._rate_limited_ids = rate_limited_ids
+        self._write_cookies = write_cookies
         self._archive_lock = archive_lock
 
     def __enter__(self) -> "FakeYoutubeDL":
@@ -36,6 +44,14 @@ class FakeYoutubeDL:
 
     def __exit__(self, *exc_info: object) -> bool:
         return False
+
+    def extract_info(self, url: str, *, download: bool) -> dict[str, Any] | None:
+        cookie_file = self._opts.get("cookiefile")
+        if self._write_cookies and cookie_file:
+            path = Path(cookie_file)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("# Netscape HTTP Cookie File\n", encoding="utf-8")
+        return self._info
 
     def download(self, urls: list[str]) -> int:
         return_code = 0
@@ -102,10 +118,12 @@ class FakeYoutubeDL:
 
 def fake_ydl_factory(
     *,
+    info: dict[str, Any] | None = None,
     fail_ids: frozenset[str] = frozenset(),
     rate_limited_ids: frozenset[str] = frozenset(),
+    write_cookies: bool = True,
 ) -> Callable[[dict[str, Any]], FakeYoutubeDL]:
-    """Build a factory that produces scripted ``FakeYoutubeDL`` instances.
+    """Build a factory producing scripted ``FakeYoutubeDL`` instances.
 
     All instances share one lock so concurrent archive appends stay line-clean.
     """
@@ -114,8 +132,10 @@ def fake_ydl_factory(
     def factory(opts: dict[str, Any]) -> FakeYoutubeDL:
         return FakeYoutubeDL(
             opts,
+            info=info,
             fail_ids=fail_ids,
             rate_limited_ids=rate_limited_ids,
+            write_cookies=write_cookies,
             archive_lock=archive_lock,
         )
 
@@ -130,45 +150,3 @@ class RecordingObserver:
 
     def __call__(self, event: Event) -> None:
         self.events.append(event)
-
-
-class FakeFlatExtractor:
-    """A stand-in for read-only flat extraction.
-
-    Mimics yt-dlp writing the cookie file as a side-effect of the call when
-    ``write_cookies`` is set, so cookie-mode resolution can be exercised.
-    """
-
-    def __init__(
-        self,
-        opts: dict[str, Any],
-        info: dict[str, Any] | None,
-        *,
-        write_cookies: bool,
-    ) -> None:
-        self._opts = opts
-        self._info = info
-        self._write_cookies = write_cookies
-
-    def __enter__(self) -> "FakeFlatExtractor":
-        return self
-
-    def __exit__(self, *exc_info: object) -> bool:
-        return False
-
-    def extract_info(self, url: str, *, download: bool) -> dict[str, Any] | None:
-        cookie_file = self._opts.get("cookiefile")
-        if self._write_cookies and cookie_file:
-            path = Path(cookie_file)
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text("# Netscape HTTP Cookie File\n", encoding="utf-8")
-        return self._info
-
-
-def fake_flat_factory(
-    info: dict[str, Any] | None, *, write_cookies: bool = True
-) -> Callable[[dict[str, Any]], FakeFlatExtractor]:
-    def make(opts: dict[str, Any]) -> FakeFlatExtractor:
-        return FakeFlatExtractor(opts, info, write_cookies=write_cookies)
-
-    return make

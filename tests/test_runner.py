@@ -1,35 +1,38 @@
-"""Tests for the run_download dry-run path (read-only plan, no download)."""
+"""Tests for run_download: dry-run plan, empty playlist, and plain execution."""
 
-from fakes import fake_flat_factory
+from fakes import fake_ydl_factory
 from ytdlp_parallel.archive import Entry, read_entries
 from ytdlp_parallel.config import resolve_run_config
 from ytdlp_parallel.runner import run_download
 
+_TWO_ENTRIES = {
+    "entries": [
+        {"id": "a", "url": "https://youtu.be/a", "title": "A"},
+        {"id": "b", "url": "https://youtu.be/b", "title": "B"},
+    ]
+}
 
-def _dry_config(tmp_path):
+
+def _config(tmp_path, *, dry_run, plain=True):
     return resolve_run_config(
-        jobs=4,
+        jobs=2,
         url="https://example.com/playlist",
         output_dir=tmp_path / "dl",
         browser="chrome",
         remux_format="mp4",
         fragments=1,
-        dry_run=True,
-        plain_flag=False,
-        is_tty=True,
+        dry_run=dry_run,
+        plain_flag=plain,
+        is_tty=False,
         cwd=tmp_path,
     )
 
 
 def test_dry_run_prints_plan_writes_entries_no_media(tmp_path, capsys):
-    config = _dry_config(tmp_path)
-    info = {
-        "entries": [
-            {"id": "a", "url": "https://youtu.be/a", "title": "A"},
-            {"id": "b", "url": "https://youtu.be/b", "title": "B"},
-        ]
-    }
-    code = run_download(config, ydl_factory=fake_flat_factory(info), warn=lambda _m: None)
+    config = _config(tmp_path, dry_run=True)
+    code = run_download(
+        config, ydl_factory=fake_ydl_factory(info=_TWO_ENTRIES), warn=lambda _m: None
+    )
     out = capsys.readouterr().out
 
     assert code == 0
@@ -44,16 +47,10 @@ def test_dry_run_prints_plan_writes_entries_no_media(tmp_path, capsys):
 
 
 def test_dry_run_counts_already_present(tmp_path, capsys):
-    config = _dry_config(tmp_path)
+    config = _config(tmp_path, dry_run=True)
     config.paths.state_dir.mkdir(parents=True, exist_ok=True)
     config.paths.archive_file.write_text("youtube a\n", encoding="utf-8")
-    info = {
-        "entries": [
-            {"id": "a", "url": "u1", "title": "A"},
-            {"id": "b", "url": "u2", "title": "B"},
-        ]
-    }
-    run_download(config, ydl_factory=fake_flat_factory(info), warn=lambda _m: None)
+    run_download(config, ydl_factory=fake_ydl_factory(info=_TWO_ENTRIES), warn=lambda _m: None)
     out = capsys.readouterr().out
 
     present_line = next(line for line in out.splitlines() if "already in archive" in line)
@@ -61,24 +58,48 @@ def test_dry_run_counts_already_present(tmp_path, capsys):
 
 
 def test_dry_run_no_warning_when_cookie_file_written(tmp_path):
-    config = _dry_config(tmp_path)
-    info = {"entries": [{"id": "a", "url": "u", "title": "A"}]}
+    config = _config(tmp_path, dry_run=True)
     warnings: list[str] = []
     run_download(
         config,
-        ydl_factory=fake_flat_factory(info, write_cookies=True),
+        ydl_factory=fake_ydl_factory(info=_TWO_ENTRIES, write_cookies=True),
         warn=warnings.append,
     )
     assert warnings == []
 
 
 def test_dry_run_warns_when_cookie_file_missing(tmp_path):
-    config = _dry_config(tmp_path)
-    info = {"entries": [{"id": "a", "url": "u", "title": "A"}]}
+    config = _config(tmp_path, dry_run=True)
     warnings: list[str] = []
     run_download(
         config,
-        ydl_factory=fake_flat_factory(info, write_cookies=False),
+        ydl_factory=fake_ydl_factory(info=_TWO_ENTRIES, write_cookies=False),
         warn=warnings.append,
     )
     assert len(warnings) == 1
+
+
+def test_empty_playlist_exits_zero_without_running(tmp_path, capsys):
+    config = _config(tmp_path, dry_run=False)
+    code = run_download(
+        config, ydl_factory=fake_ydl_factory(info={"entries": []}), warn=lambda _m: None
+    )
+    assert code == 0
+    assert "nothing to do" in capsys.readouterr().out.lower()
+
+
+def test_plain_run_downloads_and_writes_report(tmp_path, capsys):
+    config = _config(tmp_path, dry_run=False, plain=True)
+    code = run_download(
+        config, ydl_factory=fake_ydl_factory(info=_TWO_ENTRIES), warn=lambda _m: None
+    )
+    out = capsys.readouterr().out
+
+    assert code == 0
+    assert config.paths.report_file.exists()
+    assert "Downloaded now:" in out
+    report = config.paths.report_file.read_text(encoding="utf-8")
+    assert "Playlist:" in report
+    # failed.txt written (empty, since both succeeded)
+    assert config.paths.failed_file.exists()
+    assert config.paths.failed_file.read_text(encoding="utf-8") == ""

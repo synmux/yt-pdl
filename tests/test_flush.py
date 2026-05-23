@@ -2,7 +2,7 @@
 
 import pytest
 
-from fakes import fake_flat_factory
+from fakes import fake_ydl_factory
 from ytdlp_parallel.archive import Entry, write_entries
 from ytdlp_parallel.config import resolve_state_paths
 from ytdlp_parallel.errors import NoStateError
@@ -64,7 +64,9 @@ def test_flush_reflatten_with_url(tmp_path, capsys):
         ]
     }
 
-    code = run_flush(tmp_path / "dl", "https://example.com/pl", ydl_factory=fake_flat_factory(info))
+    code = run_flush(
+        tmp_path / "dl", "https://example.com/pl", ydl_factory=fake_ydl_factory(info=info)
+    )
     out = capsys.readouterr().out
 
     assert code == 0
