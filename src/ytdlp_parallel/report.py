@@ -36,16 +36,12 @@ def render_report_text(
     if rec.missing_files_count:
         lines += [
             "",
-            f"Warning: {rec.missing_files_count} archived video(s) have no "
-            "output file on disk.",
+            f"Warning: {rec.missing_files_count} archived video(s) have no output file on disk.",
         ]
 
     if failure_reasons:
         lines += ["", "Failures:"]
-        lines += [
-            f"  {video_id}: {reason}"
-            for video_id, reason in sorted(failure_reasons.items())
-        ]
+        lines += [f"  {video_id}: {reason}" for video_id, reason in sorted(failure_reasons.items())]
 
     return "\n".join(lines)
 

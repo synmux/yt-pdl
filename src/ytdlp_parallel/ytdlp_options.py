@@ -51,6 +51,7 @@ def build_download_opts(
     cookie_mode: CookieMode,
     progress_hook: ProgressHook | None = None,
     postprocessor_hook: ProgressHook | None = None,
+    logger: object | None = None,
 ) -> dict[str, Any]:
     """Build the per-worker download options for one ``YoutubeDL`` instance."""
     opts: dict[str, Any] = {
@@ -73,6 +74,8 @@ def build_download_opts(
         opts["progress_hooks"] = [progress_hook]
     if postprocessor_hook is not None:
         opts["postprocessor_hooks"] = [postprocessor_hook]
+    if logger is not None:
+        opts["logger"] = logger
     return opts
 
 

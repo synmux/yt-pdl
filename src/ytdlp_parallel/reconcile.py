@@ -93,6 +93,4 @@ def reconcile(
 
 def failed_urls(reconciliation: Reconciliation, entries: list[Entry]) -> list[str]:
     """Return the URLs of outstanding (failed) entries, in playlist order."""
-    return [
-        entry.url for entry in entries if entry.id in reconciliation.failed_ids
-    ]
+    return [entry.url for entry in entries if entry.id in reconciliation.failed_ids]
