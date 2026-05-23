@@ -3,6 +3,7 @@
 import threading
 
 from fakes import RecordingObserver, fake_ydl_factory
+
 from ytdlp_parallel.archive import Entry
 from ytdlp_parallel.config import resolve_run_config
 from ytdlp_parallel.engine import build_queue, run_engine, worker_count_for
@@ -103,7 +104,9 @@ def test_engine_detects_rate_limit(tmp_path):
         _config(tmp_path),
         COOKIE_MODE,
         observer,
-        ydl_factory=fake_ydl_factory(fail_ids=frozenset({"x"}), rate_limited_ids=frozenset({"x"})),
+        ydl_factory=fake_ydl_factory(
+            fail_ids=frozenset({"x"}), rate_limited_ids=frozenset({"x"})
+        ),
         spawn=_inline_spawn,
     )
     failed = [e for e in observer.events if isinstance(e, VideoFailed)]

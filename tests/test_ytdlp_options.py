@@ -28,7 +28,9 @@ def _config(remux_format="mp4", fragments=1, browser="chrome", output="downloads
 
 def test_download_opts_core_keys():
     config = _config()
-    opts = build_download_opts(config, cookie_mode=CookieMode.from_file(config.paths.cookie_file))
+    opts = build_download_opts(
+        config, cookie_mode=CookieMode.from_file(config.paths.cookie_file)
+    )
     assert opts["outtmpl"] == "%(title)s [%(id)s].%(ext)s"
     assert opts["paths"] == {"home": "/work/downloads"}
     assert opts["download_archive"] == "/work/downloads/.ytdlp-state/archive.txt"
@@ -44,7 +46,9 @@ def test_download_opts_remux_present_when_format_set():
     opts = build_download_opts(
         _config(remux_format="mp4"), cookie_mode=CookieMode.from_file(Path("/c"))
     )
-    assert opts["postprocessors"] == [{"key": "FFmpegVideoRemuxer", "preferedformat": "mp4"}]
+    assert opts["postprocessors"] == [
+        {"key": "FFmpegVideoRemuxer", "preferedformat": "mp4"}
+    ]
 
 
 def test_download_opts_remux_absent_when_format_empty():
@@ -55,7 +59,9 @@ def test_download_opts_remux_absent_when_format_empty():
 
 
 def test_download_opts_fragments_passthrough():
-    opts = build_download_opts(_config(fragments=5), cookie_mode=CookieMode.from_file(Path("/c")))
+    opts = build_download_opts(
+        _config(fragments=5), cookie_mode=CookieMode.from_file(Path("/c"))
+    )
     assert opts["concurrent_fragment_downloads"] == 5
 
 
@@ -88,7 +94,9 @@ def test_download_opts_hooks_only_when_provided():
     assert with_hooks["progress_hooks"] == [hook]
     assert with_hooks["postprocessor_hooks"] == [hook]
 
-    without_hooks = build_download_opts(_config(), cookie_mode=CookieMode.from_file(Path("/c")))
+    without_hooks = build_download_opts(
+        _config(), cookie_mode=CookieMode.from_file(Path("/c"))
+    )
     assert "progress_hooks" not in without_hooks
     assert "postprocessor_hooks" not in without_hooks
 
@@ -100,7 +108,9 @@ def test_download_opts_logger_only_when_provided():
     )
     assert with_logger["logger"] is logger
 
-    without_logger = build_download_opts(_config(), cookie_mode=CookieMode.from_file(Path("/c")))
+    without_logger = build_download_opts(
+        _config(), cookie_mode=CookieMode.from_file(Path("/c"))
+    )
     assert "logger" not in without_logger
 
 

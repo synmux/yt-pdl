@@ -1,6 +1,7 @@
 """Smoke tests for the Textual UI via the run_test harness (no real terminal)."""
 
 from fakes import fake_ydl_factory
+
 from ytdlp_parallel.archive import Entry
 from ytdlp_parallel.config import resolve_run_config
 from ytdlp_parallel.tui.app import DownloadApp

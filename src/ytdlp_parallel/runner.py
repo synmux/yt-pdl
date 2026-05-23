@@ -38,7 +38,9 @@ def _resolve_factory(ydl_factory: YdlFactory | None) -> YdlFactory:
     return ydl_factory if ydl_factory is not None else _default_ydl_factory()
 
 
-def run_download(config: RunConfig, *, warn: Warn, ydl_factory: YdlFactory | None = None) -> int:
+def run_download(
+    config: RunConfig, *, warn: Warn, ydl_factory: YdlFactory | None = None
+) -> int:
     """Resolve, bootstrap cookies + flatten, then plan (dry-run) or download."""
     factory = _resolve_factory(ydl_factory)
     config.paths.state_dir.mkdir(parents=True, exist_ok=True)
@@ -46,7 +48,9 @@ def run_download(config: RunConfig, *, warn: Warn, ydl_factory: YdlFactory | Non
     export_opts = build_cookie_export_opts(config)
     entries = flatten_playlist(config.url, export_opts, ydl_factory=factory)
     write_entries(config.paths.entries_file, entries)
-    cookie_mode = determine_cookie_mode(config.paths.cookie_file, config.browser, warn=warn)
+    cookie_mode = determine_cookie_mode(
+        config.paths.cookie_file, config.browser, warn=warn
+    )
 
     if config.dry_run:
         _print_dry_run(config, entries, cookie_mode)
@@ -112,7 +116,9 @@ def _reconcile_run(
     return reconciliation, report_text
 
 
-def _finalise_run(config: RunConfig, entries: list[Entry], run_result: RunResult) -> int:
+def _finalise_run(
+    config: RunConfig, entries: list[Entry], run_result: RunResult
+) -> int:
     """Auto flush: reconcile, write report.txt + failed.txt, and print the report.
 
     Shared by the plain and Textual paths so the end-of-run report is identical.
@@ -124,7 +130,9 @@ def _finalise_run(config: RunConfig, entries: list[Entry], run_result: RunResult
     return 0
 
 
-def run_flush(output_dir: Path, url: str | None, *, ydl_factory: YdlFactory | None = None) -> int:
+def run_flush(
+    output_dir: Path, url: str | None, *, ydl_factory: YdlFactory | None = None
+) -> int:
     """Reconcile requested vs landed vs failed for an existing output directory.
 
     With ``url`` the playlist is re-flattened to redefine the requested set;
@@ -146,7 +154,9 @@ def run_flush(output_dir: Path, url: str | None, *, ydl_factory: YdlFactory | No
         paths = config.paths
         paths.state_dir.mkdir(parents=True, exist_ok=True)
         export_opts = build_cookie_export_opts(config)
-        entries = flatten_playlist(url, export_opts, ydl_factory=_resolve_factory(ydl_factory))
+        entries = flatten_playlist(
+            url, export_opts, ydl_factory=_resolve_factory(ydl_factory)
+        )
         write_entries(paths.entries_file, entries)
     else:
         paths = resolve_state_paths(output_dir)
@@ -180,7 +190,9 @@ def _landed_ids_with_files(output_dir: Path, landed_ids: set[str]) -> set[str]:
         return set()
     file_names = [item.name for item in output_dir.iterdir() if item.is_file()]
     return {
-        video_id for video_id in landed_ids if any(f"[{video_id}]" in name for name in file_names)
+        video_id
+        for video_id in landed_ids
+        if any(f"[{video_id}]" in name for name in file_names)
     }
 
 

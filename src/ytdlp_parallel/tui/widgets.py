@@ -28,7 +28,9 @@ class WorkerPanel(Widget):
 
     def compose(self) -> ComposeResult:
         yield Label("idle", id=f"worker-{self._worker_index}-title")
-        yield ProgressBar(total=100, show_eta=False, id=f"worker-{self._worker_index}-bar")
+        yield ProgressBar(
+            total=100, show_eta=False, id=f"worker-{self._worker_index}-bar"
+        )
 
     def start(self, title: str) -> None:
         self._title_label.update(title)
@@ -36,7 +38,9 @@ class WorkerPanel(Widget):
 
     def apply(self, update: ProgressUpdate) -> None:
         meta = "  ".join(
-            part for part in (update.percent_str, update.speed_str, update.eta_str) if part
+            part
+            for part in (update.percent_str, update.speed_str, update.eta_str)
+            if part
         )
         self._title_label.update(f"{update.title}  {meta}".rstrip())
         if update.percent is not None:

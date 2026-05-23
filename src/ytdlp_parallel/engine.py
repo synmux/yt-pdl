@@ -114,7 +114,8 @@ def _make_progress_hook(
                     title=entry.title,
                     percent=_compute_percent(status),
                     downloaded_bytes=status.get("downloaded_bytes"),
-                    total_bytes=status.get("total_bytes") or status.get("total_bytes_estimate"),
+                    total_bytes=status.get("total_bytes")
+                    or status.get("total_bytes_estimate"),
                     speed=status.get("speed"),
                     eta=status.get("eta"),
                     percent_str=str(status.get("_percent_str", "")).strip(),
@@ -149,7 +150,9 @@ def _download_one(
     state = _DownloadState()
     logger = _CapturingLogger()
     hook = _make_progress_hook(worker_index, entry, emit, state)
-    opts = build_download_opts(config, cookie_mode=cookie_mode, progress_hook=hook, logger=logger)
+    opts = build_download_opts(
+        config, cookie_mode=cookie_mode, progress_hook=hook, logger=logger
+    )
 
     return_code = 1
     try:

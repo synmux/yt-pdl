@@ -50,9 +50,9 @@ dependency graph size is not a concern.
 
 ## 1. Problem & motivation
 
-yt-dlp has **no built-in option to download multiple playlist *items* in
+yt-dlp has **no built-in option to download multiple playlist _items_ in
 parallel**. Its only concurrency flag, `--concurrent-fragments` / `-N`,
-parallelises fragments *within a single* DASH/HLS video — playlist items are
+parallelises fragments _within a single_ DASH/HLS video — playlist items are
 always processed serially by one process. Downloading a ~1,000-item playlist
 (e.g. Watch Later) therefore crawls.
 
@@ -114,23 +114,23 @@ command (e.g. via `click-default-group`) so the bare invocation downloads.
 
 ### `download` (default)
 
-| Option | Short | Type | Default | Meaning |
-|---|---|---|---|---|
-| `--jobs` | `-j` | int ≥ 1 | `4` | Number of concurrent workers. |
-| `--url` | `-u` | str | Watch Later (`https://www.youtube.com/playlist?list=WL`) | Playlist (or any yt-dlp-supported) URL. |
-| `--output` | `-o` | path (dir) | `./downloads` | Output directory. Created if absent. |
-| `--browser` | `-b` | str | `chrome` | Browser to read cookies from. |
-| `--format` | `-f` | str | `mp4` | Remux container; empty string disables remux. |
-| `--fragments` | `-N` | int ≥ 1 | `1` | `concurrent_fragment_downloads` per worker (intra-video). |
-| `--dry-run` | | flag | off | Plan only; do not download (see §6.5). |
-| `--plain` | | flag | auto | Disable the Textual UI; emit line-based progress (auto-on when stdout is not a TTY). |
+| Option        | Short | Type       | Default                                                  | Meaning                                                                              |
+| ------------- | ----- | ---------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `--jobs`      | `-j`  | int ≥ 1    | `4`                                                      | Number of concurrent workers.                                                        |
+| `--url`       | `-u`  | str        | Watch Later (`https://www.youtube.com/playlist?list=WL`) | Playlist (or any yt-dlp-supported) URL.                                              |
+| `--output`    | `-o`  | path (dir) | `./downloads`                                            | Output directory. Created if absent.                                                 |
+| `--browser`   | `-b`  | str        | `chrome`                                                 | Browser to read cookies from.                                                        |
+| `--format`    | `-f`  | str        | `mp4`                                                    | Remux container; empty string disables remux.                                        |
+| `--fragments` | `-N`  | int ≥ 1    | `1`                                                      | `concurrent_fragment_downloads` per worker (intra-video).                            |
+| `--dry-run`   |       | flag       | off                                                      | Plan only; do not download (see §6.5).                                               |
+| `--plain`     |       | flag       | auto                                                     | Disable the Textual UI; emit line-based progress (auto-on when stdout is not a TTY). |
 
 ### `flush`
 
-| Option | Short | Type | Default | Meaning |
-|---|---|---|---|---|
-| `--output` | `-o` | path (dir) | `./downloads` | Locate the run's state directory and reconcile it (see §6.6). |
-| `--url` | `-u` | str | _(optional)_ | If given, re-flatten the playlist to define the "requested" set instead of using the cached list. |
+| Option     | Short | Type       | Default       | Meaning                                                                                           |
+| ---------- | ----- | ---------- | ------------- | ------------------------------------------------------------------------------------------------- |
+| `--output` | `-o`  | path (dir) | `./downloads` | Locate the run's state directory and reconcile it (see §6.6).                                     |
+| `--url`    | `-u`  | str        | _(optional)_  | If given, re-flatten the playlist to define the "requested" set instead of using the cached list. |
 
 Validate inputs with Click types (`click.IntRange(min=1)` for `--jobs`/
 `--fragments`, `click.Path(file_okay=False)` for `--output`). Invalid input must
@@ -204,13 +204,16 @@ flowchart TD
 ## 6. Functional requirements
 
 ### 6.1 Concurrency
+
 - Run exactly `--jobs` workers concurrently (or fewer if there are fewer videos).
 - Warn (do not block) when `--jobs > 8`: YouTube throttles aggressive concurrent
   access (HTTP 429), and beyond a handful of workers total throughput usually
   **drops**. The realistic sweet spot is 4–8.
 
 ### 6.2 The Textual UI
+
 While downloading, the UI must show:
+
 - **One row/panel per worker**: worker number, current video title, a progress
   bar with percentage, and speed/ETA where yt-dlp provides them.
 - An **overall progress bar / counter**: `completed / total`, plus a running
@@ -222,16 +225,19 @@ While downloading, the UI must show:
 - On completion, transition to a **summary screen** (the flush report, §6.6).
 
 ### 6.3 Resume semantics
+
 - The shared `download_archive` means re-running the same command skips videos
   already completed and only attempts the rest. This must work across separate
   invocations targeting the same `--output`.
 
 ### 6.4 Cookies
+
 - Read once, write a cookie file in the state directory, reuse for all workers
   (see §5.1). Treat the cookie file as **sensitive** (it holds a live session);
   note this to the user and keep it inside the state directory.
 
 ### 6.5 `--dry-run` (required)
+
 - Resolve all configuration and paths.
 - Perform the **read-only** playlist flatten so the plan reflects the **real**
   video count (this needs cookies but downloads nothing).
@@ -245,6 +251,7 @@ While downloading, the UI must show:
 - Must not create the TUI and must not download.
 
 ### 6.6 `flush` / completion report (required)
+
 The "flush" reconciles **what was requested** against **what landed**.
 
 - **Requested set** = video IDs from the persisted flatten list (or re-flattened
@@ -258,6 +265,7 @@ The "flush" reconciles **what was requested** against **what landed**.
   (warn if the archive claims success but no file is found).
 
 **Outputs of the report:**
+
 - A summary, e.g.:
   ```text
   Playlist:        1000 videos
@@ -270,6 +278,7 @@ The "flush" reconciles **what was requested** against **what landed**.
 - If failure reasons were captured during the run, include them.
 
 **Triggering:**
+
 - **Automatically at the end of a download run** (now feasible because the run is
   foreground): show it on the TUI summary screen, and also print it to stdout
   after the UI exits.
@@ -285,13 +294,13 @@ exits non-zero only on operational errors (e.g. no state found).
 
 Everything lives under `<output>/.ytdlp-state/`:
 
-| File | Purpose |
-|---|---|
-| `cookies.txt` | Cookies exported once from the browser (**sensitive**). |
-| `entries.json` | Flattened playlist: list of `{id, url, title}`. |
-| `archive.txt` | yt-dlp `download_archive` (resume + skip). |
-| `failed.txt` | Outstanding URLs after a run/flush (for easy retry). |
-| `report.txt` | Last completion report (human-readable). |
+| File           | Purpose                                                 |
+| -------------- | ------------------------------------------------------- |
+| `cookies.txt`  | Cookies exported once from the browser (**sensitive**). |
+| `entries.json` | Flattened playlist: list of `{id, url, title}`.         |
+| `archive.txt`  | yt-dlp `download_archive` (resume + skip).              |
+| `failed.txt`   | Outstanding URLs after a run/flush (for easy retry).    |
+| `report.txt`   | Last completion report (human-readable).                |
 
 Output media files go directly under `<output>/`.
 
@@ -327,6 +336,7 @@ side effects, it must be **tested** (yt-dlp/network and the terminal may be
 faked **in tests only** — this is the permitted exception to the no-mocks rule).
 
 **Behavioural**
+
 - [ ] `download` with `-j N` runs N concurrent workers and downloads every
       outstanding playlist item, showing live per-worker progress in Textual.
 - [ ] Re-running skips archived videos and retries previously-failed ones.
@@ -342,6 +352,7 @@ faked **in tests only** — this is the permitted exception to the no-mocks rule
       exit.
 
 **Tested units (pure logic)**
+
 - [ ] Reconciliation set maths: requested vs archive → landed/failed, including a
       shared archive containing unrelated IDs.
 - [ ] Video-ID extraction from entries / archive parsing.
@@ -355,6 +366,7 @@ faked **in tests only** — this is the permitted exception to the no-mocks rule
       messages; summary screen renders).
 
 **Quality gates**
+
 - [ ] Lint, type-check (e.g. `ruff` + `mypy`/`pyright`), and tests all pass.
 - [ ] British English in user-facing strings; descriptive names throughout.
 

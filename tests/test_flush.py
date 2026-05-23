@@ -1,8 +1,8 @@
 """Tests for the standalone flush reconciliation."""
 
 import pytest
-
 from fakes import fake_ydl_factory
+
 from ytdlp_parallel.archive import Entry, write_entries
 from ytdlp_parallel.config import resolve_state_paths
 from ytdlp_parallel.errors import NoStateError
@@ -17,7 +17,9 @@ def _seed(tmp_path, entries, *, archive_ids, media_ids):
         "".join(f"youtube {video_id}\n" for video_id in archive_ids), encoding="utf-8"
     )
     for media_id in media_ids:
-        (paths.output_dir / f"Title {media_id} [{media_id}].mp4").write_text("x", encoding="utf-8")
+        (paths.output_dir / f"Title {media_id} [{media_id}].mp4").write_text(
+            "x", encoding="utf-8"
+        )
     return paths
 
 
@@ -65,7 +67,9 @@ def test_flush_reflatten_with_url(tmp_path, capsys):
     }
 
     code = run_flush(
-        tmp_path / "dl", "https://example.com/pl", ydl_factory=fake_ydl_factory(info=info)
+        tmp_path / "dl",
+        "https://example.com/pl",
+        ydl_factory=fake_ydl_factory(info=info),
     )
     out = capsys.readouterr().out
 

@@ -25,6 +25,7 @@ The download **engine** (`engine.py`) is UI-agnostic: it drains a shared
 emits immutable **events** (`events.py`) through an `EventObserver` callback.
 
 Two front-ends consume the same event stream:
+
 - `tui/` — a Textual `App`; `@work(thread=True)` workers post `EngineEventMessage`s
   that update widgets on the UI thread.
 - `plain.py` — a `ThreadPoolExecutor` that prints line-based progress.

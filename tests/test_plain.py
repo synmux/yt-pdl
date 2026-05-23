@@ -3,6 +3,7 @@
 import threading
 
 from fakes import fake_ydl_factory
+
 from ytdlp_parallel.archive import Entry
 from ytdlp_parallel.config import resolve_run_config
 from ytdlp_parallel.plain import run_plain
@@ -32,7 +33,10 @@ def _entries(ids):
 
 def test_run_plain_downloads_all_and_prints(tmp_path, capsys):
     result = run_plain(
-        _entries(["a", "b"]), _config(tmp_path), COOKIE_MODE, ydl_factory=fake_ydl_factory()
+        _entries(["a", "b"]),
+        _config(tmp_path),
+        COOKIE_MODE,
+        ydl_factory=fake_ydl_factory(),
     )
     out = capsys.readouterr().out
 
