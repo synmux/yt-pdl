@@ -1,6 +1,6 @@
 # AGENTS.md — context for AI agents
 
-`yt-pdl` downloads a YouTube playlist with several concurrent yt-dlp
+`yt-pdlp` downloads a YouTube playlist with several concurrent yt-dlp
 workers, a live Textual UI, a `--dry-run` planner, and a `flush` reconciliation
 report. See `README.md` for user-facing docs and `PRD.md` for the full spec.
 

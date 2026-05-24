@@ -1,11 +1,11 @@
 """Smoke tests for the Textual UI via the run_test harness (no real terminal)."""
 
 from fakes import fake_ydl_factory
-from yt_pdl.archive import Entry
-from yt_pdl.config import resolve_run_config
-from yt_pdl.options import CookieMode
-from yt_pdl.tui.app import DownloadApp
-from yt_pdl.tui.summary import SummaryScreen
+from yt_pdlp.archive import Entry
+from yt_pdlp.config import resolve_run_config
+from yt_pdlp.options import CookieMode
+from yt_pdlp.tui.app import DownloadApp
+from yt_pdlp.tui.summary import SummaryScreen
 
 COOKIE_MODE = CookieMode.from_browser("chrome")
 

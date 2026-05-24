@@ -3,10 +3,10 @@
 import threading
 
 from fakes import fake_ydl_factory
-from yt_pdl.archive import Entry
-from yt_pdl.config import resolve_run_config
-from yt_pdl.options import CookieMode
-from yt_pdl.plain import run_plain
+from yt_pdlp.archive import Entry
+from yt_pdlp.config import resolve_run_config
+from yt_pdlp.options import CookieMode
+from yt_pdlp.plain import run_plain
 
 COOKIE_MODE = CookieMode.from_browser("chrome")
 

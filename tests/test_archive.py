@@ -1,6 +1,6 @@
 """Tests for download-archive parsing and entries.json persistence."""
 
-from yt_pdl.archive import (
+from yt_pdlp.archive import (
     Entry,
     archive_id_for,
     entries_from_json,

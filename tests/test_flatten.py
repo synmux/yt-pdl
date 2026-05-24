@@ -4,9 +4,9 @@ from typing import Any
 
 import pytest
 
-from yt_pdl.archive import Entry
-from yt_pdl.errors import FlattenError
-from yt_pdl.flatten import flatten_playlist
+from yt_pdlp.archive import Entry
+from yt_pdlp.errors import FlattenError
+from yt_pdlp.flatten import flatten_playlist
 
 
 class _FakeExtractor:

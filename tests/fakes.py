@@ -16,8 +16,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from yt_pdl.archive import archive_id_for
-from yt_pdl.events import Event
+from yt_pdlp.archive import archive_id_for
+from yt_pdlp.events import Event
 
 
 class FakeYoutubeDL:

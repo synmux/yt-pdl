@@ -1,9 +1,9 @@
 """Tests for run_download: dry-run plan, empty playlist, and plain execution."""
 
 from fakes import fake_ydl_factory
-from yt_pdl.archive import Entry, read_entries
-from yt_pdl.config import resolve_run_config
-from yt_pdl.runner import run_download
+from yt_pdlp.archive import Entry, read_entries
+from yt_pdlp.config import resolve_run_config
+from yt_pdlp.runner import run_download
 
 _TWO_ENTRIES = {
     "entries": [

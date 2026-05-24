@@ -1,4 +1,4 @@
-# PRD — `yt-pdl` (Python rewrite)
+# PRD — `yt-pdlp` (Python rewrite)
 
 A command-line tool that downloads a large YouTube playlist with **several
 yt-dlp workers running concurrently**, showing each worker's live progress in a
@@ -7,7 +7,7 @@ yt-dlp workers running concurrently**, showing each worker's live progress in a
 
 > **This document is the source of truth for a fresh implementation.** It assumes
 > no prior conversation. A working Bash prototype exists at
-> `./yt-pdl.sh` — read it for the download semantics (cookie reuse,
+> `./yt-pdlp.sh` — read it for the download semantics (cookie reuse,
 > resume archive, output template), but note the Python version deliberately
 > **does not use tmux** and changes the concurrency model (see below).
 
@@ -95,7 +95,7 @@ where it left off.
 - **Textual** — terminal UI.
 - **yt-dlp** — used as a **Python library** (`import yt_dlp`), not shelled out.
 - Packaging via **`pyproject.toml`**; recommend running with **`uv`**
-  (`uv run yt-pdl ...`). Define a console-script entry point.
+  (`uv run yt-pdlp ...`). Define a console-script entry point.
 - Other libraries permitted freely where they help (e.g. `rich` — already a
   Textual dependency — for the dry-run/flush plain-text output; `platformdirs`
   if useful). Prefer importing over reimplementing.

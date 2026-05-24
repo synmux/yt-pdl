@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from yt_pdl.config import resolve_run_config
-from yt_pdl.options import (
+from yt_pdlp.config import resolve_run_config
+from yt_pdlp.options import (
     CookieMode,
     build_cookie_export_opts,
     build_download_opts,

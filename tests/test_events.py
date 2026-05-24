@@ -4,7 +4,7 @@ import dataclasses
 
 import pytest
 
-from yt_pdl.events import (
+from yt_pdlp.events import (
     ProgressUpdate,
     RunResultBuilder,
     VideoFailed,

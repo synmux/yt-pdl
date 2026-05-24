@@ -2,9 +2,9 @@
 
 from pathlib import Path
 
-from yt_pdl.config import resolve_run_config
-from yt_pdl.reconcile import reconcile
-from yt_pdl.report import render_dry_run_plan, render_report_text
+from yt_pdlp.config import resolve_run_config
+from yt_pdlp.reconcile import reconcile
+from yt_pdlp.report import render_dry_run_plan, render_report_text
 
 
 def _rec(requested, archive, downloaded=None, landed_with_files=None):

@@ -1,4 +1,4 @@
-"""Entry point for ``python -m yt_pdl``."""
+"""Entry point for ``python -m yt_pdlp``."""
 
 from .cli import cli
 

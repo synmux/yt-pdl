@@ -1,8 +1,8 @@
 """Tests for cookie-mode determination after the read-once export."""
 
-from yt_pdl.ytdlp_options import CookieMode
+from yt_pdlp.ytdlp_options import CookieMode
 
-from yt_pdl.cookies import determine_cookie_mode
+from yt_pdlp.cookies import determine_cookie_mode
 
 
 def test_cookie_mode_from_written_file(tmp_path):

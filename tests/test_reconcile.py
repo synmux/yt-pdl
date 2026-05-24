@@ -1,7 +1,7 @@
 """Tests for requested/landed/failed reconciliation set maths."""
 
-from yt_pdl.archive import Entry
-from yt_pdl.reconcile import failed_urls, reconcile
+from yt_pdlp.archive import Entry
+from yt_pdlp.reconcile import failed_urls, reconcile
 
 
 def test_landed_is_archive_intersect_requested_ignoring_unrelated():

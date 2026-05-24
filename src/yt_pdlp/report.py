@@ -60,7 +60,7 @@ def render_dry_run_plan(
     """Render the ``--dry-run`` plan: resolved options, counts, opts, paths, banner."""
     paths = config.paths
     lines = [
-        "yt-pdl — dry run plan",
+        "yt-pdlp — dry run plan",
         "",
         "Resolved options:",
         f"  jobs:      {config.jobs}",

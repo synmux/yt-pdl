@@ -47,7 +47,7 @@ class DownloadApp(App[RunResult]):
     #log { height: 8; border: round $secondary; }
     """
     BINDINGS = [("q", "graceful_quit", "Quit")]
-    TITLE = "yt-pdl"
+    TITLE = "yt-pdlp"
 
     def __init__(
         self,

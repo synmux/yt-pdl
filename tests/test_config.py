@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from yt_pdl.config import (
+from yt_pdlp.config import (
     STATE_DIR_NAME,
     WATCH_LATER_URL,
     resolve_run_config,
