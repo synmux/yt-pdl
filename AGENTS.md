@@ -1,6 +1,6 @@
 # AGENTS.md — context for AI agents
 
-`ytdlp-parallel` downloads a YouTube playlist with several concurrent yt-dlp
+`yt-pdl` downloads a YouTube playlist with several concurrent yt-dlp
 workers, a live Textual UI, a `--dry-run` planner, and a `flush` reconciliation
 report. See `README.md` for user-facing docs and `PRD.md` for the full spec.
 
@@ -35,7 +35,7 @@ selects the front-end. It is the only module that imports `yt_dlp` (lazily) and
 `tui.app` (lazily, so `--dry-run`/`flush`/`--help` don't pay Textual's import cost).
 
 Pure, unit-tested modules: `config.py`, `archive.py`, `reconcile.py`,
-`events.py`, `ytdlp_options.py`, `report.py`.
+`events.py`, `options.py`, `report.py`.
 
 ## Invariants — do not regress
 

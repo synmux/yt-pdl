@@ -8,8 +8,8 @@ import pprint
 from typing import Any
 
 from .config import RunConfig
+from .options import OUTPUT_TEMPLATE
 from .reconcile import Reconciliation
-from .ytdlp_options import OUTPUT_TEMPLATE
 
 _LABEL_WIDTH = 18
 
@@ -60,7 +60,7 @@ def render_dry_run_plan(
     """Render the ``--dry-run`` plan: resolved options, counts, opts, paths, banner."""
     paths = config.paths
     lines = [
-        "ytdlp-parallel — dry run plan",
+        "yt-pdl — dry run plan",
         "",
         "Resolved options:",
         f"  jobs:      {config.jobs}",

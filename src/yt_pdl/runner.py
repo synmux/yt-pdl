@@ -17,10 +17,10 @@ from .cookies import determine_cookie_mode
 from .errors import NoStateError
 from .events import RunResult
 from .flatten import flatten_playlist
+from .options import build_cookie_export_opts, build_download_opts
 from .plain import run_plain
 from .reconcile import Reconciliation, failed_urls, reconcile
 from .report import render_dry_run_plan, render_report_text
-from .ytdlp_options import build_cookie_export_opts, build_download_opts
 
 Warn = Callable[[str], None]
 YdlFactory = Callable[[dict[str, Any]], Any]

@@ -1,0 +1,135 @@
+name: Publish Python 🐍 distribution 📦 to PyPI and GitHub Releases
+on:
+  push:
+    tags:
+      - "**"
+jobs:
+  build:
+    name: Build distribution 📦
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@main
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@main
+        with:
+          python-version: 3.12
+      - name: Install poetry
+        run: >-
+          python3 -m
+          pip install
+          poetry
+          --user
+      - name: Build a binary wheel and a source tarball
+        run: python3 -m poetry build
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@main
+        with:
+          name: python-package-distributions
+          path: dist/
+  pypi:
+    name: >-
+      Publish Python 🐍 distribution 📦 to PyPI
+    needs:
+      - build
+    runs-on: ubuntu-24.04
+    environment:
+      name: pypi
+      url: https://pypi.org/p/belt-cli
+    permissions:
+      id-token: write # IMPORTANT: mandatory for trusted publishing
+    steps:
+      - name: Download dists
+        uses: actions/download-artifact@main
+        with:
+          name: python-package-distributions
+          path: dist/
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@main
+  github-release:
+    name: >-
+      Sign the Python 🐍 distribution 📦 with Sigstore
+      and upload them to GitHub Release
+    needs:
+      - build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # IMPORTANT: mandatory for making GitHub Releases
+      id-token: write # IMPORTANT: mandatory for sigstore
+    steps:
+      - name: Download all the dists
+        uses: actions/download-artifact@main
+        with:
+          name: python-package-distributions
+          path: dist/
+      - name: Sign the dists with Sigstore
+        uses: sigstore/gh-action-sigstore-python@main
+        with:
+          inputs: >-
+            ./dist/*.tar.gz
+            ./dist/*.whl
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create
+          "$GITHUB_REF_NAME"
+          --repo "$GITHUB_REPOSITORY"
+          --notes ""
+      - name: Upload artifact signatures to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release upload
+          "$GITHUB_REF_NAME" dist/**
+          --repo "$GITHUB_REPOSITORY"
+  docker:
+    name: Push Docker image to Docker Hub and GitHub
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@main
+      - name: Log in to Docker Hub
+        uses: docker/login-action@main
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Log in to the Container registry
+        uses: docker/login-action@main
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@main
+        with:
+          images: |
+            daveio/belt
+            ghcr.io/${{ github.repository }}
+      - name: Build and push Docker images
+        id: push
+        uses: docker/build-push-action@main
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Generate artifact attestation for Docker Hub
+        uses: actions/attest-build-provenance@main
+        with:
+          subject-name: docker.io/daveio/belt
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+      - name: Generate artifact attestation for GitHub
+        uses: actions/attest-build-provenance@main
+        with:
+          subject-name: ghcr.io/daveio/belt
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true

@@ -1,12 +1,12 @@
 """Tests for the standalone flush reconciliation."""
 
 import pytest
-from fakes import fake_ydl_factory
 
-from ytdlp_parallel.archive import Entry, write_entries
-from ytdlp_parallel.config import resolve_state_paths
-from ytdlp_parallel.errors import NoStateError
-from ytdlp_parallel.runner import run_flush
+from fakes import fake_ydl_factory
+from yt_pdl.archive import Entry, write_entries
+from yt_pdl.config import resolve_state_paths
+from yt_pdl.errors import NoStateError
+from yt_pdl.runner import run_flush
 
 
 def _seed(tmp_path, entries, *, archive_ids, media_ids):

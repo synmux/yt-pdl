@@ -1,4 +1,4 @@
-# ytdlp-parallel
+# yt-pdl
 
 Download a large YouTube playlist with **several yt-dlp workers running
 concurrently**, showing each worker's live progress in a [Textual](https://textual.textualize.io/)
@@ -10,7 +10,7 @@ that reconciles how many videos actually landed versus failed.
 yt-dlp has no built-in option to download multiple playlist _items_ in parallel —
 its `-N` / `--concurrent-fragments` flag only parallelises fragments _within a
 single_ video, so playlist items are processed one at a time. Downloading a
-~1,000-item playlist (such as Watch Later) therefore crawls. `ytdlp-parallel`
+~1,000-item playlist (such as Watch Later) therefore crawls. `yt-pdl`
 runs several downloads at once in one process, with a live UI and resumability.
 
 ## Requirements
@@ -26,26 +26,26 @@ This project uses [`uv`](https://docs.astral.sh/uv/):
 
 ```bash
 uv sync                       # create the environment
-uv run ytdlp-parallel --help  # see all options
+uv run yt-pdl --help  # see all options
 ```
 
 ## Usage
 
-`ytdlp-parallel` is a command group with a default command, so a bare invocation
+`yt-pdl` is a command group with a default command, so a bare invocation
 downloads:
 
 ```bash
 # Download Watch Later with 4 workers (the defaults)
-uv run ytdlp-parallel
+uv run yt-pdl
 
 # Six workers, a specific playlist, into ./videos
-uv run ytdlp-parallel -j 6 -u "https://www.youtube.com/playlist?list=PLxxxx" -o ./videos
+uv run yt-pdl -j 6 -u "https://www.youtube.com/playlist?list=PLxxxx" -o ./videos
 
 # Plan only — contacts YouTube read-only, downloads nothing
-uv run ytdlp-parallel --dry-run
+uv run yt-pdl --dry-run
 
 # Reconcile an existing output directory without downloading
-uv run ytdlp-parallel flush -o ./videos
+uv run yt-pdl flush -o ./videos
 ```
 
 ### `download` options (the default command)
@@ -101,7 +101,7 @@ Downloaded media files go directly under `<output>/`.
 
 The realistic sweet spot is **4–8 workers**. The bottleneck is YouTube's
 per-account/IP throttling (HTTP 429), not your machine — beyond a handful of
-workers, total throughput usually _drops_. `ytdlp-parallel` warns when you ask
+workers, total throughput usually _drops_. `yt-pdl` warns when you ask
 for more than 8 but does not stop you.
 
 ## Development

@@ -31,7 +31,7 @@ from ..events import (
     VideoStarted,
     WorkerFinished,
 )
-from ..ytdlp_options import CookieMode
+from ..options import CookieMode
 from .messages import EngineEventMessage
 from .summary import SummaryScreen
 from .widgets import OverallStatus, WorkerPanel
@@ -47,7 +47,7 @@ class DownloadApp(App[RunResult]):
     #log { height: 8; border: round $secondary; }
     """
     BINDINGS = [("q", "graceful_quit", "Quit")]
-    TITLE = "ytdlp-parallel"
+    TITLE = "yt-pdl"
 
     def __init__(
         self,

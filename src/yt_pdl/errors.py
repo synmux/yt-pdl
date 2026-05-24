@@ -2,7 +2,7 @@
 
 
 class YtdlpParallelError(Exception):
-    """Base class for all ytdlp-parallel operational errors."""
+    """Base class for all yt-pdl operational errors."""
 
 
 class FlattenError(YtdlpParallelError):

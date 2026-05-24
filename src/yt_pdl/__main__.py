@@ -1,4 +1,4 @@
-"""Entry point for ``python -m ytdlp_parallel``."""
+"""Entry point for ``python -m yt_pdl``."""
 
 from .cli import cli
 

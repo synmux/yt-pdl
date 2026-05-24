@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-import ytdlp_parallel.cli as cli_module
-from ytdlp_parallel.cli import cli
+import yt_pdl.cli as cli_module
+from yt_pdl.cli import cli
 
 
 @pytest.fixture

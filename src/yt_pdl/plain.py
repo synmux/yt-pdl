@@ -25,7 +25,7 @@ from .events import (
     VideoStarted,
     fan_out,
 )
-from .ytdlp_options import CookieMode
+from .options import CookieMode
 
 
 def _format_event(event: Event) -> str | None:

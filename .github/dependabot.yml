@@ -1,0 +1,26 @@
+version: 2
+updates:
+  # Configuration for pip
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+    assignees:
+      - daveio
+  # Configuration for docker
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+    assignees:
+      - daveio
+  # Configuration for github-actions
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+    assignees:
+      - daveio

@@ -17,11 +17,16 @@ runtimes:
     - python@3.14.4
 # This is the section where you manage your linters. (https://docs.trunk.io/check/configuration)
 lint:
+  disabled:
+    - isort
   enabled:
+    - actionlint@1.7.12
+    - hadolint@2.14.0
+    - checkov@3.2.529
+    - yamllint@1.38.0
     - bandit@1.9.4
     - black@26.5.1
     - git-diff-check
-    - isort@8.0.1
     - markdownlint@0.48.0
     - prettier@3.8.3
     - ruff@0.15.14
@@ -29,6 +34,11 @@ lint:
     - shfmt@3.6.0
     - taplo@0.10.0
     - trufflehog@3.95.3
+  ignore:
+    - linters:
+        - bandit
+      paths:
+        - tests/**
 actions:
   enabled:
     - trunk-announce

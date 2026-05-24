@@ -3,11 +3,10 @@
 import threading
 
 from fakes import RecordingObserver, fake_ydl_factory
-
-from ytdlp_parallel.archive import Entry
-from ytdlp_parallel.config import resolve_run_config
-from ytdlp_parallel.engine import build_queue, run_engine, worker_count_for
-from ytdlp_parallel.events import (
+from yt_pdl.archive import Entry
+from yt_pdl.config import resolve_run_config
+from yt_pdl.engine import build_queue, run_engine, worker_count_for
+from yt_pdl.events import (
     ProgressUpdate,
     VideoFailed,
     VideoFinished,
@@ -16,7 +15,7 @@ from ytdlp_parallel.events import (
     WorkerFinished,
     WorkerStarted,
 )
-from ytdlp_parallel.ytdlp_options import CookieMode
+from yt_pdl.options import CookieMode
 
 COOKIE_MODE = CookieMode.from_browser("chrome")
 

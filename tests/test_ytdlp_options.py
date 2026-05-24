@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from ytdlp_parallel.config import resolve_run_config
-from ytdlp_parallel.ytdlp_options import (
+from yt_pdl.config import resolve_run_config
+from yt_pdl.options import (
     CookieMode,
     build_cookie_export_opts,
     build_download_opts,

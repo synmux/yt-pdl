@@ -10,7 +10,7 @@ directly (slower, and the workers contend on the browser's locked cookie store).
 from collections.abc import Callable
 from pathlib import Path
 
-from .ytdlp_options import CookieMode
+from .options import CookieMode
 
 
 def determine_cookie_mode(

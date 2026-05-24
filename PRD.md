@@ -1,4 +1,4 @@
-# PRD — `ytdlp-parallel` (Python rewrite)
+# PRD — `yt-pdl` (Python rewrite)
 
 A command-line tool that downloads a large YouTube playlist with **several
 yt-dlp workers running concurrently**, showing each worker's live progress in a
@@ -7,7 +7,7 @@ yt-dlp workers running concurrently**, showing each worker's live progress in a
 
 > **This document is the source of truth for a fresh implementation.** It assumes
 > no prior conversation. A working Bash prototype exists at
-> `./ytdlp-parallel.sh` — read it for the download semantics (cookie reuse,
+> `./yt-pdl.sh` — read it for the download semantics (cookie reuse,
 > resume archive, output template), but note the Python version deliberately
 > **does not use tmux** and changes the concurrency model (see below).
 
@@ -65,7 +65,7 @@ where it left off.
 
 ## 2. Goals / Non-goals
 
-**Goals**
+### Goals
 
 - Download a playlist with a **configurable number of concurrent workers**.
 - A **Textual TUI** showing per-worker live progress plus an overall tally.
@@ -77,7 +77,7 @@ where it left off.
 - Read browser cookies **once** and reuse them (Watch Later requires auth).
 - Fail **explicitly and loudly**; never silently swallow errors.
 
-**Non-goals**
+### Non-goals
 
 - No tmux, no shell orchestration, no spawning of one yt-dlp **process** per
   video via the CLI binary (use the Python API instead — see §5).
@@ -95,7 +95,7 @@ where it left off.
 - **Textual** — terminal UI.
 - **yt-dlp** — used as a **Python library** (`import yt_dlp`), not shelled out.
 - Packaging via **`pyproject.toml`**; recommend running with **`uv`**
-  (`uv run ytdlp-parallel ...`). Define a console-script entry point.
+  (`uv run yt-pdl ...`). Define a console-script entry point.
 - Other libraries permitted freely where they help (e.g. `rich` — already a
   Textual dependency — for the dry-run/flush plain-text output; `platformdirs`
   if useful). Prefer importing over reimplementing.
@@ -157,7 +157,7 @@ flowchart TD
     M --> N[Write report + failed.txt, show summary, exit]
 ```
 
-**Component notes**
+### Component notes
 
 1. **Cookie bootstrap.** Watch Later is private. Read the browser cookie store
    **once** (yt-dlp `cookiesfrombrowser`) and write a reusable cookie file
@@ -335,7 +335,7 @@ A correct implementation must satisfy all of the following. Where logic has
 side effects, it must be **tested** (yt-dlp/network and the terminal may be
 faked **in tests only** — this is the permitted exception to the no-mocks rule).
 
-**Behavioural**
+### Behavioural
 
 - [ ] `download` with `-j N` runs N concurrent workers and downloads every
       outstanding playlist item, showing live per-worker progress in Textual.
@@ -351,7 +351,7 @@ faked **in tests only** — this is the permitted exception to the no-mocks rule
 - [ ] Invalid `--jobs`/`--fragments`/`--output` produce clear errors, non-zero
       exit.
 
-**Tested units (pure logic)**
+### Tested units (pure logic)
 
 - [ ] Reconciliation set maths: requested vs archive → landed/failed, including a
       shared archive containing unrelated IDs.
@@ -365,7 +365,7 @@ faked **in tests only** — this is the permitted exception to the no-mocks rule
 - [ ] Textual UI smoke test via the testing harness (workers post progress
       messages; summary screen renders).
 
-**Quality gates**
+### Quality gates
 
 - [ ] Lint, type-check (e.g. `ruff` + `mypy`/`pyright`), and tests all pass.
 - [ ] British English in user-facing strings; descriptive names throughout.

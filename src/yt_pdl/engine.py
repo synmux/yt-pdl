@@ -27,7 +27,7 @@ from .events import (
     WorkerFinished,
     WorkerStarted,
 )
-from .ytdlp_options import CookieMode, build_download_opts
+from .options import CookieMode, build_download_opts
 
 _RATE_LIMIT_MARKERS = ("429", "too many requests")
 

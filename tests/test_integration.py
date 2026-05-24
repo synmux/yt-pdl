@@ -1,9 +1,8 @@
 """End-to-end integration: auto-flush report at end of run, and resume across runs."""
 
 from fakes import fake_ydl_factory
-
-from ytdlp_parallel.config import resolve_run_config
-from ytdlp_parallel.runner import run_download
+from yt_pdl.config import resolve_run_config
+from yt_pdl.runner import run_download
 
 _THREE = {
     "entries": [
