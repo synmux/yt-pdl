@@ -1,7 +1,7 @@
 name: Publish Python 🐍 distribution 📦 to PyPI and GitHub Releases
 on:
   release:
-    typeqs:
+    types:
       - released
       - prereleased
 jobs:
