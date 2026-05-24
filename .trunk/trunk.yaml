@@ -36,6 +36,10 @@ lint:
     - trufflehog@3.95.3
   ignore:
     - linters:
+        - prettier
+      paths:
+        - .github/workflows/claude*.yml
+    - linters:
         - bandit
       paths:
         - tests/**

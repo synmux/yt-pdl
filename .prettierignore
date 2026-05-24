@@ -1,0 +1,7 @@
+# Ignore patterns for standalone Prettier (editor extension, `npx prettier`,
+# pre-commit, etc.). Trunk-managed Prettier does NOT read this file — it is
+# configured independently via `lint.ignore` in `.trunk/trunk.yaml`.
+
+# Claude Code GitHub Action workflows are maintained by Anthropic's action;
+# keep their formatting as-shipped rather than letting Prettier reflow them.
+.github/workflows/claude*.yml
