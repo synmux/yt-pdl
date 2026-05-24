@@ -1,8 +1,9 @@
 name: Publish Python 🐍 distribution 📦 to PyPI and GitHub Releases
 on:
-  push:
-    tags:
-      - "**"
+  release:
+    typeqs:
+      - released
+      - prereleased
 jobs:
   build:
     name: Build distribution 📦
