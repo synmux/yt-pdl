@@ -1,4 +1,4 @@
-FROM python:3.14.0-alpine3.21
+FROM python:3.14.1-alpine3.21
 HEALTHCHECK CMD "yt-pdl --version"
 RUN adduser -h /app -D ytpdl
 USER ytpdl
