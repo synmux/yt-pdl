@@ -70,14 +70,6 @@ jobs:
           inputs: >-
             ./dist/*.tar.gz
             ./dist/*.whl
-      - name: Create GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: >-
-          gh release create
-          "$GITHUB_REF_NAME"
-          --repo "$GITHUB_REPOSITORY"
-          --notes ""
       - name: Upload artifact signatures to GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -86,7 +78,7 @@ jobs:
           "$GITHUB_REF_NAME" dist/**
           --repo "$GITHUB_REPOSITORY"
   docker:
-    name: Push Docker image to Docker Hub and GitHub
+    name: Push Docker image to GitHub Container Registry 🐳
     runs-on: ubuntu-24.04
     permissions:
       packages: write
@@ -96,11 +88,6 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # ratchet:actions/checkout@HEAD
-      - name: Log in to Docker Hub
-        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # ratchet:docker/login-action@HEAD
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Log in to the Container registry
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # ratchet:docker/login-action@HEAD
         with:
@@ -112,7 +99,6 @@ jobs:
         uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # ratchet:docker/metadata-action@HEAD
         with:
           images: |
-            daveio/belt
             ghcr.io/${{ github.repository }}
       - name: Build and push Docker images
         id: push
@@ -122,15 +108,9 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      - name: Generate artifact attestation for Docker Hub
-        uses: actions/attest-build-provenance@10334b5f1e684784025c3fc0a277c88c19089275 # ratchet:actions/attest-build-provenance@HEAD
-        with:
-          subject-name: docker.io/daveio/belt
-          subject-digest: ${{ steps.push.outputs.digest }}
-          push-to-registry: true
       - name: Generate artifact attestation for GitHub
         uses: actions/attest-build-provenance@10334b5f1e684784025c3fc0a277c88c19089275 # ratchet:actions/attest-build-provenance@HEAD
         with:
-          subject-name: ghcr.io/daveio/belt
+          subject-name: ghcr.io/synmux/yt-pdlp
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
