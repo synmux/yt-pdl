@@ -9,11 +9,11 @@ jobs:
     name: Build distribution 📦
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # ratchet:actions/checkout@HEAD
         with:
           persist-credentials: false
       - name: Set up Python
-        uses: actions/setup-python@main
+        uses: actions/setup-python@c8813ba1bc76ebf779b911ad8ffccbf2e449cb48 # ratchet:actions/setup-python@HEAD
         with:
           python-version: 3.12
       - name: Install poetry
@@ -25,7 +25,7 @@ jobs:
       - name: Build a binary wheel and a source tarball
         run: python3 -m poetry build
       - name: Store the distribution packages
-        uses: actions/upload-artifact@main
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@HEAD
         with:
           name: python-package-distributions
           path: dist/
@@ -42,12 +42,12 @@ jobs:
       id-token: write # IMPORTANT: mandatory for trusted publishing
     steps:
       - name: Download dists
-        uses: actions/download-artifact@main
+        uses: actions/download-artifact@484a0b528fb4d7bd804637ccb632e47a0e638317 # ratchet:actions/download-artifact@HEAD
         with:
           name: python-package-distributions
           path: dist/
       - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@main
+        uses: pypa/gh-action-pypi-publish@ba38be9e461d3875417946c167d0b5f3d385a247 # ratchet:pypa/gh-action-pypi-publish@HEAD
   github-release:
     name: >-
       Sign the Python 🐍 distribution 📦 with Sigstore
@@ -60,12 +60,12 @@ jobs:
       id-token: write # IMPORTANT: mandatory for sigstore
     steps:
       - name: Download all the dists
-        uses: actions/download-artifact@main
+        uses: actions/download-artifact@484a0b528fb4d7bd804637ccb632e47a0e638317 # ratchet:actions/download-artifact@HEAD
         with:
           name: python-package-distributions
           path: dist/
       - name: Sign the dists with Sigstore
-        uses: sigstore/gh-action-sigstore-python@main
+        uses: sigstore/gh-action-sigstore-python@2f7a761af4c98ffb7ae55fa917de2cc414a9b681 # ratchet:sigstore/gh-action-sigstore-python@HEAD
         with:
           inputs: >-
             ./dist/*.tar.gz
@@ -95,41 +95,41 @@ jobs:
       id-token: write
     steps:
       - name: Check out the repo
-        uses: actions/checkout@main
+        uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # ratchet:actions/checkout@HEAD
       - name: Log in to Docker Hub
-        uses: docker/login-action@main
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # ratchet:docker/login-action@HEAD
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Log in to the Container registry
-        uses: docker/login-action@main
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # ratchet:docker/login-action@HEAD
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@main
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # ratchet:docker/metadata-action@HEAD
         with:
           images: |
             daveio/belt
             ghcr.io/${{ github.repository }}
       - name: Build and push Docker images
         id: push
-        uses: docker/build-push-action@main
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # ratchet:docker/build-push-action@HEAD
         with:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       - name: Generate artifact attestation for Docker Hub
-        uses: actions/attest-build-provenance@main
+        uses: actions/attest-build-provenance@10334b5f1e684784025c3fc0a277c88c19089275 # ratchet:actions/attest-build-provenance@HEAD
         with:
           subject-name: docker.io/daveio/belt
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
       - name: Generate artifact attestation for GitHub
-        uses: actions/attest-build-provenance@main
+        uses: actions/attest-build-provenance@10334b5f1e684784025c3fc0a277c88c19089275 # ratchet:actions/attest-build-provenance@HEAD
         with:
           subject-name: ghcr.io/daveio/belt
           subject-digest: ${{ steps.push.outputs.digest }}

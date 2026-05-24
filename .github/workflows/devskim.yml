@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@main
+        uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # ratchet:actions/checkout@HEAD
       - name: analysis
-        uses: microsoft/DevSkim-Action@main
+        uses: microsoft/DevSkim-Action@4b5047945a44163b94642a1cecc0d93a3f428cc6 # ratchet:microsoft/DevSkim-Action@HEAD
       - name: upload
-        uses: github/codeql-action/upload-sarif@main
+        uses: github/codeql-action/upload-sarif@0e150e40762c1253b364a04b0fc9f2cc14effff2 # ratchet:github/codeql-action/upload-sarif@HEAD
         with:
           sarif_file: devskim-results.sarif
