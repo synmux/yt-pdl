@@ -1,0 +1,14 @@
+[env]
+YT_DLPP_MISE_ACTIVE = 'true'
+V0_API_KEY = ''
+
+[settings]
+env_file = '.env'
+
+[tools]
+uv = { version = '0.11.16' }
+ty = { version = '0.0.39' }
+python = { version = '3.14.5' }
+
+[tasks]
+claude = 'npx --yes @anthropic-ai/claude-code@latest'
