@@ -256,7 +256,7 @@ wheels = [
 
 [[package]]
 name = "yt-pdlp"
-version = "0.1.0"
+version = "0.0.0.dev1"
 source = { editable = "." }
 dependencies = [
     { name = "click" },

@@ -56,8 +56,8 @@ uv run yt-pdlp flush -o ./videos
 | `--url`       | `-u`  | Watch Later   | Playlist (or any yt-dlp-supported) URL.                                                   |
 | `--output`    | `-o`  | `./downloads` | Output directory (created if absent).                                                     |
 | `--browser`   | `-b`  | `chrome`      | Browser to read cookies from.                                                             |
-| `--format`    | `-f`  | `mp4`         | Remux container; an empty string disables remux.                                          |
-| `--fragments` | `-N`  | `1`           | `concurrent_fragment_downloads` per worker (intra-video).                                 |
+| `--format`    | `-f`  | `None`        | Remux container; an empty string or None disables remux.                                  |
+| `--fragments` | `-N`  | `8`           | `concurrent_fragment_downloads` per worker (intra-video).                                 |
 | `--dry-run`   |       | off           | Plan only; download nothing.                                                              |
 | `--plain`     |       | auto          | Disable the Textual UI; emit line-based progress (auto-on when stdout is not a terminal). |
 

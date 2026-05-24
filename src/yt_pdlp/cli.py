@@ -81,7 +81,7 @@ def cli() -> None:
     "--format",
     "-f",
     "remux_format",
-    default="mp4",
+    default=None,
     show_default=True,
     help="Remux container; an empty string disables remux.",
 )
@@ -89,7 +89,7 @@ def cli() -> None:
     "--fragments",
     "-N",
     type=click.IntRange(min=1),
-    default=1,
+    default=8,
     show_default=True,
     help="concurrent_fragment_downloads per worker (intra-video).",
 )
