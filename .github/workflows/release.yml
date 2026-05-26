@@ -9,7 +9,7 @@ jobs:
     name: Build distribution 📦
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # ratchet:actions/checkout@HEAD
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # ratchet:actions/checkout@HEAD
         with:
           persist-credentials: false
       - name: Set up Python
@@ -87,7 +87,7 @@ jobs:
       id-token: write
     steps:
       - name: Check out the repo
-        uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # ratchet:actions/checkout@HEAD
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # ratchet:actions/checkout@HEAD
       - name: Log in to the Container registry
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # ratchet:docker/login-action@HEAD
         with:
