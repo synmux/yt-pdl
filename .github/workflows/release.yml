@@ -109,7 +109,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       - name: Generate artifact attestation for GitHub
-        uses: actions/attest-build-provenance@10334b5f1e684784025c3fc0a277c88c19089275 # ratchet:actions/attest-build-provenance@HEAD
+        uses: actions/attest-build-provenance@2c04a00460b64b4dfd062384e60ea87fa18e1728 # ratchet:actions/attest-build-provenance@HEAD
         with:
           subject-name: ghcr.io/synmux/yt-pdlp
           subject-digest: ${{ steps.push.outputs.digest }}
