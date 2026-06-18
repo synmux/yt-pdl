@@ -65,7 +65,7 @@ jobs:
           name: python-package-distributions
           path: dist/
       - name: Sign the dists with Sigstore
-        uses: sigstore/gh-action-sigstore-python@7d634840ec2f1fcb4f94ddde090c35ecaf65704d # ratchet:sigstore/gh-action-sigstore-python@HEAD
+        uses: sigstore/gh-action-sigstore-python@44db520420f019be314f86bb27adf2a33cc0c867 # ratchet:sigstore/gh-action-sigstore-python@HEAD
         with:
           inputs: >-
             ./dist/*.tar.gz
