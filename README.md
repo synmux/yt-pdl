@@ -17,6 +17,11 @@ runs several downloads at once in one process, with a live UI and resumability.
 
 - Python ≥ 3.11
 - [`ffmpeg`](https://ffmpeg.org/) on your `PATH` (needed to remux to mp4)
+- [`deno`](https://deno.com/) (or Node.js) on your `PATH` — yt-dlp runs YouTube's
+  JS challenges through it. On first use yt-dlp fetches its challenge-solver
+  script from GitHub (the `ejs:github` remote component, which `yt-pdlp`
+  allows); without a JS runtime, cookie-authenticated downloads fail with
+  "Requested format is not available".
 - A browser you are signed in to YouTube with (default: Chrome) — Watch Later is
   private, so cookies are required.
 

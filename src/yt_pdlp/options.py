@@ -6,6 +6,10 @@ dicts can be asserted in tests. They encode the verified yt-dlp API facts:
 * remux is a **postprocessor**, not an option key, and is omitted when no format
   is requested (``preferedformat`` is yt-dlp's spelling, single "r");
 * ``ignoreerrors`` must be set explicitly (the API default is ``False``);
+* ``remote_components`` must allow ``ejs:github``: cookie-authenticated YouTube
+  clients need yt-dlp's EJS challenge-solver script (run via Deno/Node), which
+  yt-dlp refuses to fetch unless explicitly permitted — without it every video
+  yields only storyboard images ("Requested format is not available");
 * the output directory is set via ``paths={'home': ...}`` with a filename-only
   ``outtmpl``;
 * cookies come from a file or directly from the browser, never both.
@@ -59,6 +63,7 @@ def build_download_opts(
         "outtmpl": OUTPUT_TEMPLATE,
         "download_archive": str(config.paths.archive_file),
         "concurrent_fragment_downloads": config.fragments,
+        "remote_components": ["ejs:github"],
         "ignoreerrors": True,
         "overwrites": False,
         "quiet": True,

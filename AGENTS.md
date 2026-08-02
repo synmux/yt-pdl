@@ -44,6 +44,12 @@ Pure, unit-tested modules: `config.py`, `archive.py`, `reconcile.py`,
   single "r"); omit it entirely when `--format` is empty. `'remux_video'` does
   nothing.
 - **`ignoreerrors=True` must be set explicitly** (yt-dlp's API default is `False`).
+- **Allow the `ejs:github` remote component.** Download opts must include
+  `remote_components: ['ejs:github']`. With account cookies YouTube serves only
+  clients whose formats require yt-dlp's external JS challenge solver (run via
+  Deno/Node); yt-dlp refuses to fetch that solver script unless explicitly
+  allowed, and every video then fails with "Requested format is not available"
+  because only storyboard images survive.
 - **Archive lines are `<extractor_lowercased> <video_id>`** (e.g. `youtube abc`);
   reconciliation keys on the trailing video id only, so a shared archive with
   unrelated ids still reconciles correctly.
