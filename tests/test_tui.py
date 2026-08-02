@@ -1,5 +1,7 @@
 """Smoke tests for the Textual UI via the run_test harness (no real terminal)."""
 
+import threading
+
 from fakes import fake_ydl_factory
 from yt_pdlp.archive import Entry
 from yt_pdlp.config import resolve_run_config
@@ -66,10 +68,12 @@ async def test_tui_counts_failures(tmp_path):
 
 async def test_tui_quit_cancels_mid_run(tmp_path):
     entries = _entries([f"v{index}" for index in range(20)])
-    app = _app(tmp_path, entries, ydl_factory=fake_ydl_factory(delay=0.05), jobs=2)
+    gate = threading.Event()
+    app = _app(tmp_path, entries, ydl_factory=fake_ydl_factory(gate=gate), jobs=2)
     async with app.run_test() as pilot:
-        await pilot.pause()  # let workers start
-        await pilot.press("q")
+        await pilot.pause()  # workers start; downloads block on the closed gate
+        await pilot.press("q")  # guaranteed mid-run: nothing can finish yet
+        gate.set()  # release in-flight downloads so workers can wind down
         await pilot.app.workers.wait_for_complete()
         await pilot.pause()
 
