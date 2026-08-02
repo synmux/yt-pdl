@@ -4,7 +4,7 @@ version = "0.0.0.dev3"
 description = "Download a YouTube playlist with several concurrent yt-dlp workers and a live Textual UI."
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["click>=8.4.2", "textual>=8.2.7", "yt-dlp>=2026.6.9"]
+dependencies = ["click>=8.4.2", "textual>=8.2.7", "yt-dlp>=2026.7.4"]
 
 [project.scripts]
 yt-pdlp = "yt_pdlp.cli:cli"
