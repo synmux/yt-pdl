@@ -1,15 +1,12 @@
 """Tests for cookie-mode determination after the read-once export."""
 
-from yt_pdlp.ytdlp_options import CookieMode
-
 from yt_pdlp.cookies import determine_cookie_mode
+from yt_pdlp.options import CookieMode
 
 
 def test_cookie_mode_from_written_file(tmp_path):
     cookie_file = tmp_path / "cookies.txt"
-    cookie_file.write_text(
-        "# Netscape HTTP Cookie File\n.youtube.com\tTRUE\t/\n", encoding="utf-8"
-    )
+    cookie_file.write_text("# Netscape HTTP Cookie File\n.youtube.com\tTRUE\t/\n", encoding="utf-8")
     warnings: list[str] = []
 
     mode = determine_cookie_mode(cookie_file, "chrome", warn=warnings.append)
