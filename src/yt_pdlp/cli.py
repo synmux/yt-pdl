@@ -25,16 +25,13 @@ class DefaultGroup(click.Group):
 
     _PASSTHROUGH = frozenset({"--help", "-h"})
 
-    def __init__(
-        self, *args: Any, default_command: str | None = None, **kwargs: Any
-    ) -> None:
+    def __init__(self, *args: Any, default_command: str | None = None, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.default_command = default_command
 
     def parse_args(self, ctx: click.Context, args: list[str]) -> list[str]:
         if self.default_command is not None and (
-            not args
-            or (args[0] not in self.commands and args[0] not in self._PASSTHROUGH)
+            not args or (args[0] not in self.commands and args[0] not in self._PASSTHROUGH)
         ):
             args = [self.default_command, *args]
         return super().parse_args(ctx, args)
@@ -93,9 +90,7 @@ def cli() -> None:
     show_default=True,
     help="concurrent_fragment_downloads per worker (intra-video).",
 )
-@click.option(
-    "--dry-run", is_flag=True, default=False, help="Plan only; download nothing."
-)
+@click.option("--dry-run", is_flag=True, default=False, help="Plan only; download nothing.")
 @click.option(
     "--plain",
     "plain",
@@ -132,9 +127,7 @@ def download(
             err=True,
         )
     try:
-        exit_code = run_download(
-            config, warn=lambda message: click.echo(message, err=True)
-        )
+        exit_code = run_download(config, warn=lambda message: click.echo(message, err=True))
     except FlattenError as error:
         click.echo(
             f"{error}\nAre you signed in to YouTube in {browser!r}? On macOS you "

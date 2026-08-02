@@ -18,6 +18,7 @@ runtimes:
 # This is the section where you manage your linters. (https://docs.trunk.io/check/configuration)
 lint:
   disabled:
+    - black # ruff-format is the formatter of record (pyproject line-length 100)
     - isort
   enabled:
     - actionlint@1.7.12
@@ -25,11 +26,10 @@ lint:
     - checkov@3.2.529
     - yamllint@1.38.0
     - bandit@1.9.4
-    - black@26.5.1
     - git-diff-check
     - markdownlint@0.48.0
     - prettier@3.8.3
-    - ruff@0.15.14
+    - ruff@0.15.20
     - shellcheck@0.11.0
     - shfmt@3.6.0
     - taplo@0.10.0

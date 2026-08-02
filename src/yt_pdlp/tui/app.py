@@ -124,11 +124,7 @@ class DownloadApp(App[RunResult]):
                 self._refresh_overall()
             case VideoFailed():
                 self._failed += 1
-                note = (
-                    " (HTTP 429 — consider lowering --jobs)"
-                    if event.is_rate_limited
-                    else ""
-                )
+                note = " (HTTP 429 — consider lowering --jobs)" if event.is_rate_limited else ""
                 self._write_log(f"✗ FAILED {event.title}: {event.reason}{note}")
                 self._refresh_overall()
             case WorkerFinished():
@@ -169,9 +165,7 @@ def run_textual(
     summarise: Summariser,
 ) -> RunResult:
     """Run the Textual app to completion and return the collected RunResult."""
-    app = DownloadApp(
-        entries, config, cookie_mode, ydl_factory=ydl_factory, summarise=summarise
-    )
+    app = DownloadApp(entries, config, cookie_mode, ydl_factory=ydl_factory, summarise=summarise)
     result = app.run()
     if result is None:
         return RunResult(

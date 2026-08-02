@@ -30,9 +30,7 @@ def test_relative_output_resolved_against_cwd():
     paths = resolve_state_paths(Path("downloads"), cwd=Path("/home/user/project"))
 
     assert paths.output_dir == Path("/home/user/project/downloads")
-    assert paths.archive_file == Path(
-        "/home/user/project/downloads/.ytdlp-state/archive.txt"
-    )
+    assert paths.archive_file == Path("/home/user/project/downloads/.ytdlp-state/archive.txt")
 
 
 def test_absolute_output_left_untouched():

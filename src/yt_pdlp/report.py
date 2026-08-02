@@ -41,10 +41,7 @@ def render_report_text(
 
     if failure_reasons:
         lines += ["", "Failures:"]
-        lines += [
-            f"  {video_id}: {reason}"
-            for video_id, reason in sorted(failure_reasons.items())
-        ]
+        lines += [f"  {video_id}: {reason}" for video_id, reason in sorted(failure_reasons.items())]
 
     return "\n".join(lines)
 

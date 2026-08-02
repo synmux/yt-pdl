@@ -50,14 +50,10 @@ def test_dry_run_counts_already_present(tmp_path, capsys):
     config = _config(tmp_path, dry_run=True)
     config.paths.state_dir.mkdir(parents=True, exist_ok=True)
     config.paths.archive_file.write_text("youtube a\n", encoding="utf-8")
-    run_download(
-        config, ydl_factory=fake_ydl_factory(info=_TWO_ENTRIES), warn=lambda _m: None
-    )
+    run_download(config, ydl_factory=fake_ydl_factory(info=_TWO_ENTRIES), warn=lambda _m: None)
     out = capsys.readouterr().out
 
-    present_line = next(
-        line for line in out.splitlines() if "already in archive" in line
-    )
+    present_line = next(line for line in out.splitlines() if "already in archive" in line)
     assert "1" in present_line
 
 

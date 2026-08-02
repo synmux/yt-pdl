@@ -103,9 +103,7 @@ def test_engine_detects_rate_limit(tmp_path):
         _config(tmp_path),
         COOKIE_MODE,
         observer,
-        ydl_factory=fake_ydl_factory(
-            fail_ids=frozenset({"x"}), rate_limited_ids=frozenset({"x"})
-        ),
+        ydl_factory=fake_ydl_factory(fail_ids=frozenset({"x"}), rate_limited_ids=frozenset({"x"})),
         spawn=_inline_spawn,
     )
     failed = [e for e in observer.events if isinstance(e, VideoFailed)]

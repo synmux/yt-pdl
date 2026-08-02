@@ -53,17 +53,13 @@ def extract_video_id(entry: Entry) -> str:
 
 def entries_to_json(entries: list[Entry]) -> str:
     """Serialise entries to a pretty JSON array of ``{id, url, title}`` objects."""
-    return json.dumps(
-        [asdict(entry) for entry in entries], indent=2, ensure_ascii=False
-    )
+    return json.dumps([asdict(entry) for entry in entries], indent=2, ensure_ascii=False)
 
 
 def entries_from_json(text: str) -> list[Entry]:
     """Parse entries from JSON produced by :func:`entries_to_json`."""
     raw_items = json.loads(text)
-    return [
-        Entry(id=item["id"], url=item["url"], title=item["title"]) for item in raw_items
-    ]
+    return [Entry(id=item["id"], url=item["url"], title=item["title"]) for item in raw_items]
 
 
 def write_entries(entries_file: Path, entries: list[Entry]) -> None:

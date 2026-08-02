@@ -38,11 +38,7 @@ def _format_event(event: Event) -> str | None:
         case VideoSkipped():
             return f"[worker {event.worker_index}] ↷ already have: {event.title}"
         case VideoFailed():
-            note = (
-                " (HTTP 429 — consider lowering --jobs)"
-                if event.is_rate_limited
-                else ""
-            )
+            note = " (HTTP 429 — consider lowering --jobs)" if event.is_rate_limited else ""
             return f"[worker {event.worker_index}] ✗ FAILED: {event.title} — {event.reason}{note}"
         case _:
             return None

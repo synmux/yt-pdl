@@ -17,9 +17,7 @@ def _seed(tmp_path, entries, *, archive_ids, media_ids):
         "".join(f"youtube {video_id}\n" for video_id in archive_ids), encoding="utf-8"
     )
     for media_id in media_ids:
-        (paths.output_dir / f"Title {media_id} [{media_id}].mp4").write_text(
-            "x", encoding="utf-8"
-        )
+        (paths.output_dir / f"Title {media_id} [{media_id}].mp4").write_text("x", encoding="utf-8")
     return paths
 
 
