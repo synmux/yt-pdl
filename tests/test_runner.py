@@ -13,10 +13,10 @@ _TWO_ENTRIES = {
 }
 
 
-def _config(tmp_path, *, dry_run, plain=True):
+def _config(tmp_path, *, dry_run, plain=True, urls=("https://example.com/playlist",)):
     return resolve_run_config(
         jobs=2,
-        url="https://example.com/playlist",
+        urls=urls,
         output_dir=tmp_path / "dl",
         browser="chrome",
         remux_format="mp4",
@@ -86,6 +86,32 @@ def test_empty_playlist_exits_zero_without_running(tmp_path, capsys):
     )
     assert code == 0
     assert "nothing to do" in capsys.readouterr().out.lower()
+
+
+def test_multiple_sources_merge_and_dedupe(tmp_path):
+    config = _config(
+        tmp_path, dry_run=False, urls=("https://pl.example/one", "https://pl.example/two")
+    )
+    factory = fake_ydl_factory(
+        infos={
+            "https://pl.example/one": {
+                "entries": [
+                    {"id": "a", "url": "https://youtu.be/a", "title": "A"},
+                    {"id": "b", "url": "https://youtu.be/b", "title": "B"},
+                ]
+            },
+            "https://pl.example/two": {
+                "entries": [
+                    {"id": "b", "url": "https://youtu.be/b", "title": "B"},
+                    {"id": "c", "url": "https://youtu.be/c", "title": "C"},
+                ]
+            },
+        }
+    )
+    code = run_download(config, ydl_factory=factory, warn=lambda _m: None)
+
+    assert code == 0
+    assert [entry.id for entry in read_entries(config.paths.entries_file)] == ["a", "b", "c"]
 
 
 def test_plain_run_downloads_and_writes_report(tmp_path, capsys):

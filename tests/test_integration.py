@@ -16,7 +16,7 @@ _THREE = {
 def _config(tmp_path, jobs=2):
     return resolve_run_config(
         jobs=jobs,
-        url="https://example.com/playlist",
+        urls=("https://example.com/playlist",),
         output_dir=tmp_path / "dl",
         browser="chrome",
         remux_format="mp4",

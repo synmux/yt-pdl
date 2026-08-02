@@ -13,7 +13,7 @@ from typing import Any
 
 import click
 
-from .config import WATCH_LATER_URL, resolve_run_config
+from .config import WATCH_LATER_URL, parse_url_file, resolve_run_config
 from .errors import FlattenError, YtdlpParallelError
 from .runner import run_download, run_flush
 
@@ -54,9 +54,22 @@ def cli() -> None:
 @click.option(
     "--url",
     "-u",
-    default=WATCH_LATER_URL,
-    show_default=True,
-    help="Playlist (or any yt-dlp-supported) URL.",
+    default=None,
+    help=(
+        "Playlist, channel or video URL; combines with --batch-file. "
+        "Defaults to Watch Later when no source is given."
+    ),
+)
+@click.option(
+    "--batch-file",
+    "-a",
+    "batch_file",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help=(
+        "File of source URLs, one per line — each a playlist, channel or video. "
+        "Blank lines and lines starting with '#', ';' or ']' are skipped."
+    ),
 )
 @click.option(
     "--output",
@@ -100,7 +113,8 @@ def cli() -> None:
 )
 def download(
     jobs: int,
-    url: str,
+    url: str | None,
+    batch_file: Path | None,
     output_dir: Path,
     browser: str,
     remux_format: str,
@@ -109,9 +123,17 @@ def download(
     plain: bool,
 ) -> None:
     """Download outstanding playlist items (the default command)."""
+    sources: list[str] = [url] if url is not None else []
+    if batch_file is not None:
+        batch_urls = parse_url_file(batch_file.read_text(encoding="utf-8"))
+        if not batch_urls:
+            raise click.UsageError(f"No URLs found in {batch_file}.")
+        sources.extend(batch_urls)
+    if not sources:
+        sources = [WATCH_LATER_URL]
     config = resolve_run_config(
         jobs=jobs,
-        url=url,
+        urls=sources,
         output_dir=output_dir,
         browser=browser,
         remux_format=remux_format,

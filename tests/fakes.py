@@ -27,6 +27,7 @@ class FakeYoutubeDL:
         opts: dict[str, Any],
         *,
         info: dict[str, Any] | None,
+        infos: dict[str, dict[str, Any] | None] | None,
         fail_ids: frozenset[str],
         rate_limited_ids: frozenset[str],
         write_cookies: bool,
@@ -35,6 +36,7 @@ class FakeYoutubeDL:
     ) -> None:
         self._opts = opts
         self._info = info
+        self._infos = infos
         self._fail_ids = fail_ids
         self._rate_limited_ids = rate_limited_ids
         self._write_cookies = write_cookies
@@ -53,6 +55,8 @@ class FakeYoutubeDL:
             path = Path(cookie_file)
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text("# Netscape HTTP Cookie File\n", encoding="utf-8")
+        if self._infos is not None and url in self._infos:
+            return self._infos[url]
         return self._info
 
     def download(self, urls: list[str]) -> int:
@@ -124,6 +128,7 @@ class FakeYoutubeDL:
 def fake_ydl_factory(
     *,
     info: dict[str, Any] | None = None,
+    infos: dict[str, dict[str, Any] | None] | None = None,
     fail_ids: frozenset[str] = frozenset(),
     rate_limited_ids: frozenset[str] = frozenset(),
     write_cookies: bool = True,
@@ -132,8 +137,10 @@ def fake_ydl_factory(
     """Build a factory producing scripted ``FakeYoutubeDL`` instances.
 
     All instances share one lock so concurrent archive appends stay line-clean.
-    ``gate`` blocks every download until the test sets it, so cancellation can
-    be exercised deterministically mid-run (no scheduling-dependent sleeps).
+    ``infos`` maps a source URL to its extraction result for multi-source runs
+    (``info`` is the fallback for URLs not in the mapping). ``gate`` blocks every
+    download until the test sets it, so cancellation can be exercised
+    deterministically mid-run (no scheduling-dependent sleeps).
     """
     archive_lock = threading.Lock()
 
@@ -141,6 +148,7 @@ def fake_ydl_factory(
         return FakeYoutubeDL(
             opts,
             info=info,
+            infos=infos,
             fail_ids=fail_ids,
             rate_limited_ids=rate_limited_ids,
             write_cookies=write_cookies,

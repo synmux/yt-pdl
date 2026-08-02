@@ -14,7 +14,7 @@ from yt_pdlp.options import (
 def _config(remux_format="mp4", fragments=1, browser="chrome", output="downloads"):
     return resolve_run_config(
         jobs=4,
-        url="https://example.com/playlist",
+        urls=("https://example.com/playlist",),
         output_dir=Path(output),
         browser=browser,
         remux_format=remux_format,

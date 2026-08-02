@@ -1,8 +1,9 @@
 # AGENTS.md — context for AI agents
 
-`yt-pdlp` downloads a YouTube playlist with several concurrent yt-dlp
-workers, a live Textual UI, a `--dry-run` planner, and a `flush` reconciliation
-report. See `README.md` for user-facing docs and `PRD.md` for the full spec.
+`yt-pdlp` downloads YouTube sources — playlists, channels or single videos,
+given as `--url` and/or a `--batch-file` URL list — with several concurrent
+yt-dlp workers, a live Textual UI, a `--dry-run` planner, and a `flush`
+reconciliation report. See `README.md` for user-facing docs and `PRD.md` for the full spec.
 
 ## Toolchain
 
@@ -30,7 +31,8 @@ Two front-ends consume the same event stream:
   that update widgets on the UI thread.
 - `plain.py` — a `ThreadPoolExecutor` that prints line-based progress.
 
-`runner.py` wires everything (cookies → flatten → engine → reconcile → report) and
+`runner.py` wires everything (cookies → flatten each source → merge + dedupe →
+engine → reconcile → report) and
 selects the front-end. It is the only module that imports `yt_dlp` (lazily) and
 `tui.app` (lazily, so `--dry-run`/`flush`/`--help` don't pay Textual's import cost).
 
@@ -56,7 +58,8 @@ Pure, unit-tested modules: `config.py`, `archive.py`, `reconcile.py`,
 - **Read the browser cookie store once.** The bootstrap flatten call uses both
   `cookiesfrombrowser` and `cookiefile`, writing `cookies.txt` as a side-effect;
   workers then read the file. Fall back to per-worker `cookiesfrombrowser` (with a
-  warning) only if the file is not produced.
+  warning) only if the file is not produced. With multiple sources, only the
+  _first_ flatten uses the export opts; later sources must reuse `cookies.txt`.
 - **Thread → UI:** worker threads must never touch widgets directly. Marshal via
   `post_message` (thread-safe, non-blocking) — never `call_from_thread` for
   high-frequency progress.

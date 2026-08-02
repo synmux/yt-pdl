@@ -46,6 +46,9 @@ uv run yt-pdlp
 # Six workers, a specific playlist, into ./videos
 uv run yt-pdlp -j 6 -u "https://www.youtube.com/playlist?list=PLxxxx" -o ./videos
 
+# Sources from a file — playlists, channels and single videos, one per line
+uv run yt-pdlp -a sources.txt -o ./videos
+
 # Plan only — contacts YouTube read-only, downloads nothing
 uv run yt-pdlp --dry-run
 
@@ -55,16 +58,17 @@ uv run yt-pdlp flush -o ./videos
 
 ### `download` options (the default command)
 
-| Option        | Short | Default       | Meaning                                                                                   |
-| ------------- | ----- | ------------- | ----------------------------------------------------------------------------------------- |
-| `--jobs`      | `-j`  | `4`           | Number of concurrent workers.                                                             |
-| `--url`       | `-u`  | Watch Later   | Playlist (or any yt-dlp-supported) URL.                                                   |
-| `--output`    | `-o`  | `./downloads` | Output directory (created if absent).                                                     |
-| `--browser`   | `-b`  | `chrome`      | Browser to read cookies from.                                                             |
-| `--format`    | `-f`  | `None`        | Remux container; an empty string or None disables remux.                                  |
-| `--fragments` | `-N`  | `8`           | `concurrent_fragment_downloads` per worker (intra-video).                                 |
-| `--dry-run`   |       | off           | Plan only; download nothing.                                                              |
-| `--plain`     |       | auto          | Disable the Textual UI; emit line-based progress (auto-on when stdout is not a terminal). |
+| Option         | Short | Default       | Meaning                                                                                                                                                                                                  |
+| -------------- | ----- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--jobs`       | `-j`  | `4`           | Number of concurrent workers.                                                                                                                                                                            |
+| `--url`        | `-u`  | Watch Later   | Playlist, channel or video URL; combines with `--batch-file`.                                                                                                                                            |
+| `--batch-file` | `-a`  | _(none)_      | File of source URLs, one per line — each a playlist, channel or video. Blank lines and `#`/`;`/`]` comment lines are skipped. Watch Later is used only when neither `--url` nor `--batch-file` is given. |
+| `--output`     | `-o`  | `./downloads` | Output directory (created if absent).                                                                                                                                                                    |
+| `--browser`    | `-b`  | `chrome`      | Browser to read cookies from.                                                                                                                                                                            |
+| `--format`     | `-f`  | `None`        | Remux container; an empty string or None disables remux.                                                                                                                                                 |
+| `--fragments`  | `-N`  | `8`           | `concurrent_fragment_downloads` per worker (intra-video).                                                                                                                                                |
+| `--dry-run`    |       | off           | Plan only; download nothing.                                                                                                                                                                             |
+| `--plain`      |       | auto          | Disable the Textual UI; emit line-based progress (auto-on when stdout is not a terminal).                                                                                                                |
 
 ### `flush` options
 

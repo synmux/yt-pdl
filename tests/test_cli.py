@@ -7,6 +7,7 @@ from click.testing import CliRunner
 
 import yt_pdlp.cli as cli_module
 from yt_pdlp.cli import cli
+from yt_pdlp.config import WATCH_LATER_URL
 
 
 @pytest.fixture
@@ -37,7 +38,7 @@ def test_option_first_invocation_routes_to_download(runner, monkeypatch):
     result = runner.invoke(cli, ["-j", "6", "-u", "https://example.com/pl"])
     assert result.exit_code == 0
     assert captured["config"].jobs == 6
-    assert captured["config"].url == "https://example.com/pl"
+    assert captured["config"].urls == ("https://example.com/pl",)
 
 
 def test_flush_subcommand_routes_to_flush(runner, monkeypatch):
@@ -94,3 +95,45 @@ def test_non_tty_forces_plain(runner, monkeypatch):
     captured = _capture_download(monkeypatch)
     runner.invoke(cli, [])
     assert captured["config"].plain is True
+
+
+def test_default_source_is_watch_later(runner, monkeypatch):
+    captured = _capture_download(monkeypatch)
+    runner.invoke(cli, [])
+    assert captured["config"].urls == (WATCH_LATER_URL,)
+
+
+def test_batch_file_supplies_sources(runner, monkeypatch, tmp_path):
+    captured = _capture_download(monkeypatch)
+    batch = tmp_path / "urls.txt"
+    batch.write_text(
+        "# playlists, channels or single videos\nhttps://example.com/one\n\nhttps://example.com/two\n",
+        encoding="utf-8",
+    )
+    result = runner.invoke(cli, ["-a", str(batch)])
+    assert result.exit_code == 0
+    assert captured["config"].urls == ("https://example.com/one", "https://example.com/two")
+
+
+def test_batch_file_combines_after_url(runner, monkeypatch, tmp_path):
+    captured = _capture_download(monkeypatch)
+    batch = tmp_path / "urls.txt"
+    batch.write_text("https://example.com/from-file\n", encoding="utf-8")
+    result = runner.invoke(cli, ["-u", "https://example.com/pl", "-a", str(batch)])
+    assert result.exit_code == 0
+    assert captured["config"].urls == ("https://example.com/pl", "https://example.com/from-file")
+
+
+def test_empty_batch_file_is_a_usage_error(runner, monkeypatch, tmp_path):
+    _capture_download(monkeypatch)
+    batch = tmp_path / "urls.txt"
+    batch.write_text("# nothing here\n\n", encoding="utf-8")
+    result = runner.invoke(cli, ["-a", str(batch)])
+    assert result.exit_code != 0
+    assert "no urls" in result.output.lower()
+
+
+def test_missing_batch_file_rejected(runner, monkeypatch, tmp_path):
+    _capture_download(monkeypatch)
+    result = runner.invoke(cli, ["-a", str(tmp_path / "absent.txt")])
+    assert result.exit_code != 0

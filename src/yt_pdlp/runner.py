@@ -16,8 +16,8 @@ from .config import RunConfig, resolve_run_config, resolve_state_paths
 from .cookies import determine_cookie_mode
 from .errors import NoStateError
 from .events import RunResult
-from .flatten import flatten_playlist
-from .options import build_cookie_export_opts, build_download_opts
+from .flatten import dedupe_entries, flatten_source
+from .options import build_cookie_export_opts, build_download_opts, build_flatten_opts
 from .plain import run_plain
 from .reconcile import Reconciliation, failed_urls, reconcile
 from .report import render_dry_run_plan, render_report_text
@@ -44,16 +44,24 @@ def run_download(config: RunConfig, *, warn: Warn, ydl_factory: YdlFactory | Non
     config.paths.state_dir.mkdir(parents=True, exist_ok=True)
 
     export_opts = build_cookie_export_opts(config)
-    entries = flatten_playlist(config.url, export_opts, ydl_factory=factory)
-    write_entries(config.paths.entries_file, entries)
+    first_url, *rest_urls = config.urls
+    entries = flatten_source(first_url, export_opts, ydl_factory=factory, warn=warn)
     cookie_mode = determine_cookie_mode(config.paths.cookie_file, config.browser, warn=warn)
+    if rest_urls:
+        # The browser store was read once, by the bootstrap call above; later
+        # sources must reuse the exported cookie file.
+        flat_opts = build_flatten_opts(cookie_mode=cookie_mode)
+        for source_url in rest_urls:
+            entries.extend(flatten_source(source_url, flat_opts, ydl_factory=factory, warn=warn))
+    entries = dedupe_entries(entries)
+    write_entries(config.paths.entries_file, entries)
 
     if config.dry_run:
         _print_dry_run(config, entries, cookie_mode)
         return 0
 
     if not entries:
-        print("Nothing to do — the playlist is empty.")
+        print("Nothing to do — no videos were found.")
         return 0
 
     if config.plain:
@@ -134,7 +142,7 @@ def run_flush(output_dir: Path, url: str | None, *, ydl_factory: YdlFactory | No
     if url is not None:
         config = resolve_run_config(
             jobs=1,
-            url=url,
+            urls=(url,),
             output_dir=output_dir,
             browser=_FLUSH_BROWSER,
             remux_format="",
@@ -146,7 +154,7 @@ def run_flush(output_dir: Path, url: str | None, *, ydl_factory: YdlFactory | No
         paths = config.paths
         paths.state_dir.mkdir(parents=True, exist_ok=True)
         export_opts = build_cookie_export_opts(config)
-        entries = flatten_playlist(url, export_opts, ydl_factory=_resolve_factory(ydl_factory))
+        entries = flatten_source(url, export_opts, ydl_factory=_resolve_factory(ydl_factory))
         write_entries(paths.entries_file, entries)
     else:
         paths = resolve_state_paths(output_dir)

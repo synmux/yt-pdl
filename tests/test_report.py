@@ -54,7 +54,7 @@ def test_report_text_warns_about_missing_files():
 def test_dry_run_plan_contains_banner_paths_and_opts():
     config = resolve_run_config(
         jobs=4,
-        url="https://www.youtube.com/playlist?list=WL",
+        urls=("https://www.youtube.com/playlist?list=WL",),
         output_dir=Path("downloads"),
         browser="chrome",
         remux_format="mp4",

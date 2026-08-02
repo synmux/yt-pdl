@@ -14,7 +14,7 @@ COOKIE_MODE = CookieMode.from_browser("chrome")
 def _config(tmp_path, jobs=2):
     return resolve_run_config(
         jobs=jobs,
-        url="https://example.com/playlist",
+        urls=("https://example.com/playlist",),
         output_dir=tmp_path,
         browser="chrome",
         remux_format="mp4",
