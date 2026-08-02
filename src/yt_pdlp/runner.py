@@ -14,10 +14,15 @@ from typing import Any
 from .archive import Entry, read_archive_ids, read_entries, write_entries
 from .config import RunConfig, resolve_run_config, resolve_state_paths
 from .cookies import determine_cookie_mode
-from .errors import NoStateError
+from .errors import FlattenError, NoStateError
 from .events import RunResult
 from .flatten import dedupe_entries, flatten_source
-from .options import build_cookie_export_opts, build_download_opts, build_flatten_opts
+from .options import (
+    CookieMode,
+    build_cookie_export_opts,
+    build_download_opts,
+    build_flatten_opts,
+)
 from .plain import run_plain
 from .reconcile import Reconciliation, failed_urls, reconcile
 from .report import render_dry_run_plan, render_report_text
@@ -43,16 +48,7 @@ def run_download(config: RunConfig, *, warn: Warn, ydl_factory: YdlFactory | Non
     factory = _resolve_factory(ydl_factory)
     config.paths.state_dir.mkdir(parents=True, exist_ok=True)
 
-    export_opts = build_cookie_export_opts(config)
-    first_url, *rest_urls = config.urls
-    entries = flatten_source(first_url, export_opts, ydl_factory=factory, warn=warn)
-    cookie_mode = determine_cookie_mode(config.paths.cookie_file, config.browser, warn=warn)
-    if rest_urls:
-        # The browser store was read once, by the bootstrap call above; later
-        # sources must reuse the exported cookie file.
-        flat_opts = build_flatten_opts(cookie_mode=cookie_mode)
-        for source_url in rest_urls:
-            entries.extend(flatten_source(source_url, flat_opts, ydl_factory=factory, warn=warn))
+    entries, cookie_mode = _flatten_sources(config, factory, warn)
     entries = dedupe_entries(entries)
     write_entries(config.paths.entries_file, entries)
 
@@ -79,6 +75,42 @@ def run_download(config: RunConfig, *, warn: Warn, ydl_factory: YdlFactory | Non
         )
 
     return _finalise_run(config, entries, run_result)
+
+
+def _flatten_sources(
+    config: RunConfig, factory: YdlFactory, warn: Warn
+) -> tuple[list[Entry], CookieMode]:
+    """Flatten every source URL, reading the browser cookie store exactly once.
+
+    The first source runs with the cookie-export opts (browser read plus
+    ``cookies.txt`` write); later sources reuse the exported file. A source that
+    fails to extract — a deleted or private video, a dead playlist — is warned
+    about and skipped; only when every source fails is the first error
+    re-raised, so a sole bad URL still aborts with a clear message.
+    """
+    export_opts = build_cookie_export_opts(config)
+    entries: list[Entry] = []
+    failures: list[FlattenError] = []
+    cookie_mode: CookieMode | None = None
+    flat_opts: dict[str, Any] | None = None
+    for source_url in config.urls:
+        bootstrap = flat_opts is None
+        opts = export_opts if flat_opts is None else flat_opts
+        try:
+            source_entries = flatten_source(source_url, opts, ydl_factory=factory, warn=warn)
+        except FlattenError as error:
+            warn(f"{error} Skipping this source.")
+            failures.append(error)
+            source_entries = []
+        if bootstrap:
+            # Even a failed bootstrap normally leaves cookies.txt behind;
+            # determine_cookie_mode falls back (with a warning) if it does not.
+            cookie_mode = determine_cookie_mode(config.paths.cookie_file, config.browser, warn=warn)
+            flat_opts = build_flatten_opts(cookie_mode=cookie_mode)
+        entries.extend(source_entries)
+    if cookie_mode is None or len(failures) == len(config.urls):
+        raise failures[0] if failures else FlattenError("No source URLs were given.")
+    return entries, cookie_mode
 
 
 def _print_dry_run(config: RunConfig, entries, cookie_mode) -> None:

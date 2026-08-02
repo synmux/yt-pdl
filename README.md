@@ -86,6 +86,8 @@ uv run yt-pdlp flush -o ./videos
   through a UI-agnostic event stream. A **Textual** front-end renders per-worker
   panels and an overall counter; a **plain** front-end prints line-based progress
   when there is no terminal.
+- A source that fails to flatten — a deleted or private video, a dead playlist —
+  is warned about and skipped; the run aborts only when _every_ source fails.
 - A shared **download archive** records only successful downloads, so re-running
   the same command **skips** what is already done and **retries** what failed.
 - The browser cookie store is read **once** and written to a reusable cookie

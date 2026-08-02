@@ -75,8 +75,13 @@ the browser store per source and regress the read-once invariant.
 
 ## Error handling
 
-- Any source failing extraction raises `FlattenError` and aborts (consistent
-  with today; partial silent success would corrupt the requested set).
+- _(Amended 2026-08-02 after field testing.)_ A source that fails extraction
+  (deleted/private video, dead playlist) is warned about and skipped — the
+  flatten/export opts set `ignoreerrors=True` so yt-dlp yields a `None` info
+  dict (→ `FlattenError`) instead of raising `DownloadError` through the
+  runner. Only when **every** source fails is the first `FlattenError`
+  re-raised, so a sole bad URL (or a broken Watch Later login) still aborts
+  with a clear message.
 - All sources empty → "nothing to do", exit 0 (existing invariant).
 
 ## Testing

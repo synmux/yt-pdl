@@ -5,7 +5,9 @@ dicts can be asserted in tests. They encode the verified yt-dlp API facts:
 
 * remux is a **postprocessor**, not an option key, and is omitted when no format
   is requested (``preferedformat`` is yt-dlp's spelling, single "r");
-* ``ignoreerrors`` must be set explicitly (the API default is ``False``);
+* ``ignoreerrors`` must be set explicitly (the API default is ``False``), on the
+  flatten/export opts too — an unavailable source then yields a ``None`` info
+  dict instead of raising ``DownloadError`` out of ``extract_info``;
 * ``remote_components`` must allow ``ejs:github``: cookie-authenticated YouTube
   clients need yt-dlp's EJS challenge-solver script (run via Deno/Node), which
   yt-dlp refuses to fetch unless explicitly permitted — without it every video
@@ -88,6 +90,7 @@ def build_flatten_opts(*, cookie_mode: CookieMode) -> dict[str, Any]:
     """Build the read-only flat-extraction options (no download)."""
     opts: dict[str, Any] = {
         "extract_flat": "in_playlist",
+        "ignoreerrors": True,
         "quiet": True,
         "no_warnings": True,
     }
@@ -105,6 +108,7 @@ def build_cookie_export_opts(config: RunConfig) -> dict[str, Any]:
         "cookiesfrombrowser": (config.browser,),
         "cookiefile": str(config.paths.cookie_file),
         "extract_flat": "in_playlist",
+        "ignoreerrors": True,
         "quiet": True,
         "no_warnings": True,
     }

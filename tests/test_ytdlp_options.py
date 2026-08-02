@@ -118,6 +118,7 @@ def test_download_opts_logger_only_when_provided():
 def test_flatten_opts():
     opts = build_flatten_opts(cookie_mode=CookieMode.from_file(Path("/tmp/c.txt")))
     assert opts["extract_flat"] == "in_playlist"
+    assert opts["ignoreerrors"] is True
     assert opts["quiet"] is True
     assert opts["no_warnings"] is True
     assert opts["cookiefile"] == "/tmp/c.txt"
@@ -129,3 +130,4 @@ def test_cookie_export_opts_reads_browser_and_writes_file():
     assert opts["cookiesfrombrowser"] == ("chrome",)
     assert opts["cookiefile"] == str(config.paths.cookie_file)
     assert opts["extract_flat"] == "in_playlist"
+    assert opts["ignoreerrors"] is True

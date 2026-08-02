@@ -45,7 +45,11 @@ Pure, unit-tested modules: `config.py`, `archive.py`, `reconcile.py`,
   `{'key': 'FFmpegVideoRemuxer', 'preferedformat': fmt}` (note `preferedformat`,
   single "r"); omit it entirely when `--format` is empty. `'remux_video'` does
   nothing.
-- **`ignoreerrors=True` must be set explicitly** (yt-dlp's API default is `False`).
+- **`ignoreerrors=True` must be set explicitly** (yt-dlp's API default is
+  `False`), on the flatten/cookie-export opts as well as the download opts:
+  flatten then reports an unavailable source as a `None` info dict (→
+  `FlattenError`, warned and skipped by the runner) instead of leaking
+  `DownloadError` through `run_download`.
 - **Allow the `ejs:github` remote component.** Download opts must include
   `remote_components: ['ejs:github']`. With account cookies YouTube serves only
   clients whose formats require yt-dlp's external JS challenge solver (run via

@@ -1,8 +1,11 @@
 """Tests for run_download: dry-run plan, empty playlist, and plain execution."""
 
+import pytest
+
 from fakes import fake_ydl_factory
 from yt_pdlp.archive import Entry, read_entries
 from yt_pdlp.config import resolve_run_config
+from yt_pdlp.errors import FlattenError
 from yt_pdlp.runner import run_download
 
 _TWO_ENTRIES = {
@@ -112,6 +115,35 @@ def test_multiple_sources_merge_and_dedupe(tmp_path):
 
     assert code == 0
     assert [entry.id for entry in read_entries(config.paths.entries_file)] == ["a", "b", "c"]
+
+
+def test_unavailable_source_skipped_with_warning(tmp_path):
+    config = _config(
+        tmp_path, dry_run=False, urls=("https://dead.example/video", "https://pl.example/live")
+    )
+    warnings: list[str] = []
+    factory = fake_ydl_factory(
+        infos={
+            "https://dead.example/video": None,  # yt-dlp: "Video unavailable"
+            "https://pl.example/live": {
+                "entries": [{"id": "a", "url": "https://youtu.be/a", "title": "A"}]
+            },
+        }
+    )
+    code = run_download(config, ydl_factory=factory, warn=warnings.append)
+
+    assert code == 0
+    assert [entry.id for entry in read_entries(config.paths.entries_file)] == ["a"]
+    assert len(warnings) == 1
+    assert "https://dead.example/video" in warnings[0]
+
+
+def test_all_sources_unavailable_raises_flatten_error(tmp_path):
+    config = _config(tmp_path, dry_run=False, urls=("https://dead.example/video",))
+    factory = fake_ydl_factory(infos={"https://dead.example/video": None})
+
+    with pytest.raises(FlattenError):
+        run_download(config, ydl_factory=factory, warn=lambda _m: None)
 
 
 def test_plain_run_downloads_and_writes_report(tmp_path, capsys):
