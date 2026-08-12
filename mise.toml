@@ -9,7 +9,7 @@ env_file = '.env'
 ruff = { version = '0.15.15' }
 uv = { version = '0.11.16' }
 ty = { version = '0.0.40' }
-python = { version = '3.14.5' }
+python = { version = '3.14.6' }
 
 [tasks]
 claude = 'npx --yes @anthropic-ai/claude-code@latest'
